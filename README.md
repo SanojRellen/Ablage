@@ -1,8 +1,7 @@
 # Ablage
 Zum abgreifen
 
-
-Sub CopySheetAndModify()
+ Sub CopySheetAndModify()
     Dim folderPath As String
     Dim recentFile As String
     Dim File As String
@@ -18,7 +17,6 @@ Sub CopySheetAndModify()
     Dim outMail As Object
     Dim emailAddress As String
     Dim emailBody As String
-    Dim pdfName As String
 
     ' Set folder path and email address
     folderPath = "C:\Your\Folder\Path\"
@@ -51,7 +49,7 @@ Sub CopySheetAndModify()
 
     ' Check cell B5 and replace if necessary
     cellValue = templateWs.Range("B5").Value
-    If cellValue = "SX5R Index" Then
+    If cellValue = "SX5E Index" Then
         templateWs.Range("B5").Value = "EUROSTOXX 50"
     End If
 
@@ -61,12 +59,11 @@ Sub CopySheetAndModify()
     Set wdDoc = wdApp.Documents.Open("C:\Your\Word\Document\Path\YourDocument.docx")
 
     With wdDoc
-        .Bookmarks("first").Range.Text = templateWs.Range("B5").Value
-        .Bookmarks("second").Range.Text = templateWs.Range("B6").Value
+        .Bookmarks("First").Range.Text = templateWs.Range("B5").Value
+        .Bookmarks("Second").Range.Text = templateWs.Range("B6").Value
 
-        ' Construct PDF name
-        pdfName = templateWs.Range("B6").Value & "_" & templateWs.Range("B1").Value & "_" & templateWs.Range("B5").Value & ".pdf"
-        pdfPath = "C:\Your\PDF\Path\" & pdfName
+        ' Construct PDF path
+        pdfPath = "C:\Your\PDF\Path\" & templateWs.Range("B6").Value & "_" & templateWs.Range("B1").Value & "_" & templateWs.Range("B5").Value & ".pdf"
         
         ' Print PDF path to Immediate Window
         Debug.Print pdfPath
