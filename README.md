@@ -2,6 +2,32 @@
 Zum abgreifen
 
 
+If templateWs.Range("B31").Value = "100,00 EUR" Then
+    templateWs.Range("C20").Value = "5,00 EUR"
+    templateWs.Range("D20").Value = "10,00 EUR"
+    templateWs.Range("E20").Value = "15,00 EUR"
+    templateWs.Range("F20").Value = "20,00 EUR"
+    templateWs.Range("G20").Value = "25,00 EUR"
+    templateWs.Range("H20").Value = "30,00 EUR"
+ElseIf templateWs.Range("B31").Value = "1000,00 EUR" Then
+    templateWs.Range("C20").Value = "50,00 EUR"
+    templateWs.Range("D20").Value = "100,00 EUR"
+    templateWs.Range("E20").Value = "150,00 EUR"
+    templateWs.Range("F20").Value = "200,00 EUR"
+    templateWs.Range("G20").Value = "250,00 EUR"
+    templateWs.Range("H20").Value = "300,00 EUR"
+End If
+
+
+
+
+
+
+
+
+
+
+
 Dim fileName As String
 Dim parts As Variant
 Dim filePath As String
