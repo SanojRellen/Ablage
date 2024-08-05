@@ -41,3 +41,25 @@ wdDoc.Close SaveChanges:=False
 wdApp.Quit
 Set wdDoc = Nothing
 Set wdApp = Nothing
+
+
+
+
+
+
+
+
+Dim fullValue As String
+Dim datePart As String
+Dim timePart As String
+
+' Get the full value from B7
+fullValue = templateWs.Range("B7").Value
+
+' Split the value based on the space
+datePart = Trim(Left(fullValue, InStr(fullValue, " ") - 1)) & "." & Trim(Mid(fullValue, InStr(fullValue, " ") + 1, 4))
+timePart = Trim(Mid(fullValue, InStrRev(fullValue, " ") + 1))
+
+' Update B7 and C7
+templateWs.Range("B7").Value = datePart
+templateWs.Range("C7").Value = timePart
