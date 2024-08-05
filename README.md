@@ -1,76 +1,43 @@
 # Ablage
 Zum abgreifen
 
-Dim baseValueText As String
-Dim baseValue As Double
-Dim relativeValue As String
-Dim absoluteValue As Double
 
-' Read the base value from B31 (text format)
-baseValueText = templateWs.Range("B31").Value
-baseValueText = Replace(baseValueText, ".", "") ' Remove the thousand separator if any
-baseValue = CDbl(Replace(baseValueText, ",", ".")) ' Convert to double
+Dim fileName As String
+Dim parts As Variant
+Dim filePath As String
 
-' Convert relative coupon values to absolute values based on B31
-' For cell C20
-relativeValue = templateWs.Range("C20").Value
-relativeValue = CDbl(Replace(Replace(relativeValue, "%", ""), ",", ".")) / 100 ' Convert to decimal
-If baseValue = 100 Then
-    absoluteValue = relativeValue * baseValue
-ElseIf baseValue = 1000 Then
-    absoluteValue = relativeValue * (baseValue / 10)
-End If
-templateWs.Range("C20").Value = Format(absoluteValue, "0.00") & " EUR"
+' Set the file path (example path, adjust accordingly)
+filePath = "C:\Your\Word\Document\Path\abc_def.docx"
 
-' For cell D20
-relativeValue = templateWs.Range("D20").Value
-relativeValue = CDbl(Replace(Replace(relativeValue, "%", ""), ",", ".")) / 100 ' Convert to decimal
-If baseValue = 100 Then
-    absoluteValue = relativeValue * baseValue
-ElseIf baseValue = 1000 Then
-    absoluteValue = relativeValue * (baseValue / 10)
-End If
-templateWs.Range("D20").Value = Format(absoluteValue, "0.00") & " EUR"
+' Extract the file name from the file path (removes the path)
+fileName = Mid(filePath, InStrRev(filePath, "\") + 1)
 
-' For cell E20
-relativeValue = templateWs.Range("E20").Value
-relativeValue = CDbl(Replace(Replace(relativeValue, "%", ""), ",", ".")) / 100 ' Convert to decimal
-If baseValue = 100 Then
-    absoluteValue = relativeValue * baseValue
-ElseIf baseValue = 1000 Then
-    absoluteValue = relativeValue * (baseValue / 10)
-End If
-templateWs.Range("E20").Value = Format(absoluteValue, "0.00") & " EUR"
+' Remove the file extension
+fileName = Left(fileName, InStrRev(fileName, ".") - 1)
 
-' For cell F20
-relativeValue = templateWs.Range("F20").Value
-relativeValue = CDbl(Replace(Replace(relativeValue, "%", ""), ",", ".")) / 100 ' Convert to decimal
-If baseValue = 100 Then
-    absoluteValue = relativeValue * baseValue
-ElseIf baseValue = 1000 Then
-    absoluteValue = relativeValue * (baseValue / 10)
-End If
-templateWs.Range("F20").Value = Format(absoluteValue, "0.00") & " EUR"
+' Split the file name into parts
+parts = Split(fileName, "_")
 
-' For cell G20
-relativeValue = templateWs.Range("G20").Value
-relativeValue = CDbl(Replace(Replace(relativeValue, "%", ""), ",", ".")) / 100 ' Convert to decimal
-If baseValue = 100 Then
-    absoluteValue = relativeValue * baseValue
-ElseIf baseValue = 1000 Then
-    absoluteValue = relativeValue * (baseValue / 10)
-End If
-templateWs.Range("G20").Value = Format(absoluteValue, "0.00") & " EUR"
+' Open Word and insert the parts into bookmarks
+Set wdApp = CreateObject("Word.Application")
+wdApp.Visible = False
+Set wdDoc = wdApp.Documents.Open(filePath)
 
-' For cell H20
-relativeValue = templateWs.Range("H20").Value
-relativeValue = CDbl(Replace(Replace(relativeValue, "%", ""), ",", ".")) / 100 ' Convert to decimal
-If baseValue = 100 Then
-    absoluteValue = relativeValue * baseValue
-ElseIf baseValue = 1000 Then
-    absoluteValue = relativeValue * (baseValue / 10)
-End If
-templateWs.Range("H20").Value = Format(absoluteValue, "0.00") & " EUR"
+With wdDoc
+    .Bookmarks("FirstPart").Range.Text = parts(0)
+    .Bookmarks("SecondPart").Range.Text = parts(1)
 
+    ' Construct Word document path
+    docPath = "C:\Your\Word\Path\" & Format(Date, "yyyy-mm-dd") & "_" & templateWs.Range("B1").Value & "_" & templateWs.Range("B5").Value & ".docx"
 
- 
+    ' Print Word document path to Immediate Window
+    Debug.Print docPath
+
+    ' Save as Word document
+    .SaveAs2 docPath, 16 ' 16 represents the wdFormatDocumentDefault constant
+End With
+
+wdDoc.Close SaveChanges:=False
+wdApp.Quit
+Set wdDoc = Nothing
+Set wdApp = Nothing
