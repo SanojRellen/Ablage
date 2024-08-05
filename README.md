@@ -63,3 +63,22 @@ timePart = Trim(Mid(fullValue, InStrRev(fullValue, " ") + 1))
 ' Update B7 and C7
 templateWs.Range("B7").Value = datePart
 templateWs.Range("C7").Value = timePart
+
+
+
+
+
+
+Dim valueB31 As Double
+Dim valueB34 As Double
+Dim sumValue As Double
+
+' Remove " EUR" and convert text to numeric values
+valueB31 = CDbl(Replace(Replace(templateWs.Range("B31").Value, " EUR", ""), ",", "."))
+valueB34 = CDbl(Replace(Replace(templateWs.Range("B34").Value, " EUR", ""), ",", "."))
+
+' Calculate the sum
+sumValue = valueB31 + valueB34
+
+' Convert the sum back to text format with comma and " EUR"
+templateWs.Range("C31").Value = Replace(Format(sumValue, "0.00"), ".", ",") & " EUR"
