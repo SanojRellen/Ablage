@@ -2,6 +2,30 @@
 Zum abgreifen
 
 
+
+Dim lastFilledColumn As Range
+Dim i As Integer
+
+' Loop through the range C14:H14 to find the last filled cell
+For i = 8 To 3 Step -1 ' 8 corresponds to column H and 3 corresponds to column C
+    If Not IsEmpty(templateWs.Cells(14, i).Value) Then
+        Set lastFilledColumn = templateWs.Cells(14, i)
+        Exit For
+    End If
+Next i
+
+' If a filled cell is found, replace its contents with "Endgültiger Bewertungstag"
+If Not lastFilledColumn Is Nothing Then
+    lastFilledColumn.Value = "Endgültiger Bewertungstag"
+End If
+
+
+
+
+
+
+
+
 With templateWs.Range("B13")
     .NumberFormat = "@" ' Format as text
     .Value = Replace(Mid(.Text, 4), ".", "/")
