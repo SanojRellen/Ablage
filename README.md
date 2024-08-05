@@ -118,3 +118,25 @@ sumValue = valueB31 + valueB34
 
 ' Convert the sum back to text format with comma and " EUR"
 templateWs.Range("C31").Value = Replace(Format(sumValue, "0.00"), ".", ",") & " EUR"
+
+
+
+
+
+
+
+Dim lastFilledColumn As Range
+Dim i As Integer
+
+' Loop through the range C15:H15 to find the last filled cell
+For i = 8 To 3 Step -1 ' 8 corresponds to column H and 3 corresponds to column C
+    If Not IsEmpty(templateWs.Cells(15, i).Value) Then
+        Set lastFilledColumn = templateWs.Cells(15, i)
+        Exit For
+    End If
+Next i
+
+' If a filled cell is found, delete its contents
+If Not lastFilledColumn Is Nothing Then
+    lastFilledColumn.ClearContents
+End If
