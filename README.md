@@ -2,6 +2,16 @@
 Zum abgreifen
 
 
+With templateWs.Range("B13")
+    .NumberFormat = "@" ' Format as text
+    .Value = Replace(Mid(.Text, 4), ".", "/")
+End With
+
+
+
+
+
+
 If templateWs.Range("B31").Value = "100,00 EUR" Then
     templateWs.Range("C20").Value = "5,00 EUR"
     templateWs.Range("D20").Value = "10,00 EUR"
