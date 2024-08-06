@@ -1,13 +1,10 @@
-Dim cellValue As String
+Dim cell As Range
 
-' Format C21 as text
-templateWs.Range("C21").NumberFormat = "@"
-
-' Read the value from C21
-cellValue = templateWs.Range("C21").Value
-
-' Delete the last 4 characters and add % sign
-cellValue = Left(cellValue, Len(cellValue) - 4) & "%"
-
-' Set the new value back to C21
-templateWs.Range("C21").Value = cellValue
+' Loop through the range C20:H20
+For Each cell In templateWs.Range("C20:H20")
+    ' Remove the last 4 characters
+    cell.Value = Left(cell.Value, Len(cell.Value) - 4)
+    
+    ' Reformat as number and divide by 100
+    cell.Value = CDbl(cell.Value) / 100
+Next cell
