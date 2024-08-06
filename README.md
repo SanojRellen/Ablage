@@ -1,8 +1,11 @@
-Dim modifiedValue As String
+Dim cell As Range
+Dim multiplier As Double
 
-' Read the value from B31 and remove the last 7 characters
-modifiedValue = Left(templateWs.Range("B31").Value, Len(templateWs.Range("B31").Value) - 7)
+' Get the value from J20
+multiplier = templateWs.Range("J20").Value
 
-' Copy the result to J20 and format as number
-templateWs.Range("J20").Value = CDbl(modifiedValue)
-templateWs.Range("J20").NumberFormat = "0.00" ' Optional: format as number with 2 decimal places
+' Loop through the range C20:H20
+For Each cell In templateWs.Range("C20:H20")
+    ' Multiply each cell's value by the value in J20 and put the result back into the cell
+    cell.Value = cell.Value * multiplier
+Next cell
