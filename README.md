@@ -1,12 +1,13 @@
-
 Dim cellValue As String
-Dim newValue As String
+
+' Format C21 as text
+templateWs.Range("C21").NumberFormat = "@"
 
 ' Read the value from C21
 cellValue = templateWs.Range("C21").Value
 
-' Replace the comma with a dot, convert to a numeric value, then format as "0%"
-newValue = Format(CDbl(Replace(cellValue, ",", ".")), "0%")
+' Delete the last 4 characters and add % sign
+cellValue = Left(cellValue, Len(cellValue) - 4) & "%"
 
 ' Set the new value back to C21
-templateWs.Range("C21").Value = newValue
+templateWs.Range("C21").Value = cellValue
