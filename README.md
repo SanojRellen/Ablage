@@ -1,10 +1,8 @@
-Dim cell As Range
+Dim modifiedValue As String
 
-' Loop through the range C20:H20
-For Each cell In templateWs.Range("C20:H20")
-    ' Remove the last 4 characters
-    cell.Value = Left(cell.Value, Len(cell.Value) - 4)
-    
-    ' Reformat as number and divide by 100
-    cell.Value = CDbl(cell.Value) / 100
-Next cell
+' Read the value from B31 and remove the last 7 characters
+modifiedValue = Left(templateWs.Range("B31").Value, Len(templateWs.Range("B31").Value) - 7)
+
+' Copy the result to J20 and format as number
+templateWs.Range("J20").Value = CDbl(modifiedValue)
+templateWs.Range("J20").NumberFormat = "0.00" ' Optional: format as number with 2 decimal places
