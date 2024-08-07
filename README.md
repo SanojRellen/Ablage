@@ -1,51 +1,54 @@
-Sub CheckCellAndUpdateWord()
-    Dim ws As Worksheet
-    Dim wdApp As Object
-    Dim wdDoc As Object
-    Dim bookmarkName As String
-    Dim table As Object
-    Dim rowToDelete As Object
-    Dim cellValue As Variant
-    Dim i As Integer
-
-    ' Set your worksheet and bookmark name
-    Set ws = ThisWorkbook.Sheets("Sheet1") ' Change to your actual sheet name
-    bookmarkName = "YourBookmarkName" ' Change to your actual bookmark name
-
-    ' Get the value from B34
-    cellValue = ws.Range("B34").Value
-
-    ' Initialize Word application
-    Set wdApp = CreateObject("Word.Application")
-    wdApp.Visible = False
-    Set wdDoc = wdApp.Documents.Open("C:\Your\Word\Document\Path\YourDocument.docx") ' Update the path
-
-    ' Check if the value in B34 is 1
-    If cellValue = 1 Then
-        ' Find the table containing the bookmark and delete the row
-        For Each table In wdDoc.Tables
-            For i = 1 To table.Rows.Count
-                If table.Cell(i, 1).Range.Bookmarks.Exists(bookmarkName) Then
-                    ' Set reference to the row containing the bookmark
-                    Set rowToDelete = table.Rows(i)
-                    ' Delete the row
-                    rowToDelete.Delete
-                    Exit For
-                End If
-            Next i
-            If Not rowToDelete Is Nothing Then Exit For
-        Next table
-    Else
-        ' Copy the value of B34 into the specified bookmark
-        wdDoc.Bookmarks(bookmarkName).Range.Text = cellValue
+Sub ParseAndFillSingleXML()
+    Dim xmlDocSource As MSXML2.DOMDocument60
+    Dim xmlDocTemplate As MSXML2.DOMDocument60
+    Dim sourceNode As IXMLDOMNode
+    Dim templateNode As IXMLDOMNode
+    
+    ' Define paths
+    Dim pickupPath As String
+    Dim storagePath As String
+    Dim templatePath As String
+    Dim inputFileName As String
+    Dim outputFileName As String
+    
+    pickupPath = "C:\path\to\input\files\input.xml" ' Change to your input file path
+    storagePath = "C:\path\to\output\files\" ' Change to your output files directory
+    templatePath = "C:\path\to\template\template.xml" ' Change to your template file path
+    outputFileName = "Filled_input.xml" ' Define the output file name
+    
+    ' Create XML document objects
+    Set xmlDocSource = New MSXML2.DOMDocument60
+    Set xmlDocTemplate = New MSXML2.DOMDocument60
+    
+    ' Load the template XML file
+    If Not xmlDocTemplate.Load(templatePath) Then
+        MsgBox "Failed to load template XML file.", vbExclamation
+        Exit Sub
     End If
-
-    ' Save changes and close Word
-    wdDoc.Save
-    wdDoc.Close SaveChanges:=True
-    wdApp.Quit
-
-    ' Clean up
-    Set wdDoc = Nothing
-    Set wdApp = Nothing
+    
+    ' Load the input XML file
+    If xmlDocSource.Load(pickupPath) Then
+        ' Find the nameLong node in the source XML
+        Set sourceNode = xmlDocSource.SelectSingleNode("//nameLong")
+        If Not sourceNode Is Nothing Then
+            ' Find the Name node in the template XML
+            Set templateNode = xmlDocTemplate.SelectSingleNode("//Name")
+            If Not templateNode Is Nothing Then
+                ' Replace the text content
+                templateNode.Text = sourceNode.Text
+                
+                ' Save the modified template XML to the storage path
+                xmlDocTemplate.Save storagePath & outputFileName
+            Else
+                MsgBox "Name node not found in template XML.", vbExclamation
+            End If
+        Else
+            MsgBox "nameLong node not found in input XML.", vbExclamation
+        End If
+    Else
+        MsgBox "Failed to load input XML file.", vbExclamation
+    End If
+    
+    MsgBox "XML Processing Completed!", vbInformation
 End Sub
+
