@@ -1,4 +1,4 @@
-Sub ParseAndFillSingleXML()
+Sub ParseAndFillMostRecentXML()
     Dim xmlDocSource As MSXML2.DOMDocument60
     Dim xmlDocTemplate As MSXML2.DOMDocument60
     Dim sourceNode As IXMLDOMNode
@@ -11,10 +11,19 @@ Sub ParseAndFillSingleXML()
     Dim inputFileName As String
     Dim outputFileName As String
     
-    pickupPath = "C:\path\to\input\files\input.xml" ' Change to your input file path
+    pickupPath = "C:\path\to\input\files\" ' Change to your input files directory
     storagePath = "C:\path\to\output\files\" ' Change to your output files directory
     templatePath = "C:\path\to\template\template.xml" ' Change to your template file path
-    outputFileName = "Filled_input.xml" ' Define the output file name
+    
+    ' Find the most recent file in the pickup path
+    inputFileName = GetMostRecentFile(pickupPath)
+    If inputFileName = "" Then
+        MsgBox "No XML files found in the pickup path.", vbExclamation
+        Exit Sub
+    End If
+    
+    ' Create the output file name
+    outputFileName = "filled_" & inputFileName
     
     ' Create XML document objects
     Set xmlDocSource = New MSXML2.DOMDocument60
@@ -27,7 +36,7 @@ Sub ParseAndFillSingleXML()
     End If
     
     ' Load the input XML file
-    If xmlDocSource.Load(pickupPath) Then
+    If xmlDocSource.Load(pickupPath & inputFileName) Then
         ' Find the nameLong node in the source XML
         Set sourceNode = xmlDocSource.SelectSingleNode("//nameLong")
         If Not sourceNode Is Nothing Then
@@ -52,3 +61,26 @@ Sub ParseAndFillSingleXML()
     MsgBox "XML Processing Completed!", vbInformation
 End Sub
 
+Function GetMostRecentFile(path As String) As String
+    Dim fileName As String
+    Dim mostRecentFile As String
+    Dim mostRecentDate As Date
+    Dim fileDate As Date
+    
+    fileName = Dir(path & "*.xml")
+    If fileName = "" Then Exit Function
+    
+    mostRecentFile = fileName
+    mostRecentDate = FileDateTime(path & fileName)
+    
+    Do While fileName <> ""
+        fileDate = FileDateTime(path & fileName)
+        If fileDate > mostRecentDate Then
+            mostRecentDate = fileDate
+            mostRecentFile = fileName
+        End If
+        fileName = Dir
+    Loop
+    
+    GetMostRecentFile = mostRecentFile
+End Function
