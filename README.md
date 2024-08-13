@@ -1,53 +1,86 @@
-
-Sub CheckValuesCalculateDifferenceAndInsertText()
-    Dim wordApp As Object
-    Dim wordDoc As Object
-    Dim bookmarkName As String
-    Dim c31Value As Double
-    Dim c32Value As Double
-    Dim difference As Double
-    Dim formattedDifference As String
-    Dim textToInsert As String
-
-    ' Define the bookmark name in the Word document
-    bookmarkName = "YourBookmarkName"
-
-    ' Get the values from C31 and C32
-    c31Value = templateWs.Range("C31").Value
-    c32Value = templateWs.Range("C32").Value
-
-    ' Determine the text to insert based on the condition
-    If c32Value > c31Value Then
-        ' Calculate the difference
-        difference = c32Value - c31Value
-        
-        ' Format the difference as a number with two decimals
-        formattedDifference = Format(difference, "0.00")
-        
-        ' Construct the text to insert
-        textToInsert = "ein in Höhe von EUR " & formattedDifference
-    Else
-        ' If C32 is not greater than C31, insert "kein"
-        textToInsert = "kein"
-    End If
-
-    ' Assuming you have already set up Word application and document
-    Set wordApp = CreateObject("Word.Application")
-    Set wordDoc = wordApp.Documents.Open("C:\path\to\your\word\document.docx")
+Sub ParseAndFillMostRecentXML()
+    Dim xmlDocSource As MSXML2.DOMDocument60
+    Dim xmlDocTemplate As MSXML2.DOMDocument60
+    Dim sourceNode As IXMLDOMNode
+    Dim templateNode As IXMLDOMNode
     
-    ' Insert the text into the Word document at the bookmark
-    If wordDoc.Bookmarks.Exists(bookmarkName) Then
-        wordDoc.Bookmarks(bookmarkName).Range.Text = textToInsert
-    Else
-        MsgBox "Bookmark not found in Word document.", vbExclamation
+    ' Define paths
+    Dim pickupPath As String
+    Dim storagePath As String
+    Dim templatePath As String
+    Dim inputFileName As String
+    Dim outputFileName As String
+    
+    pickupPath = "C:\path\to\input\files\" ' Change to your input files directory
+    storagePath = "C:\path\to\output\files\" ' Change to your output files directory
+    templatePath = "C:\path\to\template\template.xml" ' Change to your template file path
+    
+    ' Find the most recent file in the pickup path
+    inputFileName = GetMostRecentFile(pickupPath)
+    If inputFileName = "" Then
+        MsgBox "No XML files found in the pickup path.", vbExclamation
+        Exit Sub
     End If
     
-    ' Save and close the Word document
-    wordDoc.Save
-    wordDoc.Close
-    wordApp.Quit
+    ' Create the output file name
+    outputFileName = "filled_" & inputFileName
     
-    ' Clean up
-    Set wordDoc = Nothing
-    Set wordApp = Nothing
+    ' Create XML document objects
+    Set xmlDocSource = New MSXML2.DOMDocument60
+    Set xmlDocTemplate = New MSXML2.DOMDocument60
+    
+    ' Load the template XML file
+    If Not xmlDocTemplate.Load(templatePath) Then
+        MsgBox "Failed to load template XML file.", vbExclamation
+        Exit Sub
+    End If
+    
+    ' Load the input XML file
+    If xmlDocSource.Load(pickupPath & inputFileName) Then
+        ' Find the nameLong node in the source XML
+        Set sourceNode = xmlDocSource.SelectSingleNode("//nameLong")
+        If Not sourceNode Is Nothing Then
+            ' Find the Name node in the template XML
+            Set templateNode = xmlDocTemplate.SelectSingleNode("//Name")
+            If Not templateNode Is Nothing Then
+                ' Replace the text content
+                templateNode.Text = sourceNode.Text
+                
+                ' Save the modified template XML to the storage path
+                xmlDocTemplate.Save storagePath & outputFileName
+            Else
+                MsgBox "Name node not found in template XML.", vbExclamation
+            End If
+        Else
+            MsgBox "nameLong node not found in input XML.", vbExclamation
+        End If
+    Else
+        MsgBox "Failed to load input XML file.", vbExclamation
+    End If
+    
+    MsgBox "XML Processing Completed!", vbInformation
 End Sub
+
+Function GetMostRecentFile(path As String) As String
+    Dim fileName As String
+    Dim mostRecentFile As String
+    Dim mostRecentDate As Date
+    Dim fileDate As Date
+    
+    fileName = Dir(path & "*.xml")
+    If fileName = "" Then Exit Function
+    
+    mostRecentFile = fileName
+    mostRecentDate = FileDateTime(path & fileName)
+    
+    Do While fileName <> ""
+        fileDate = FileDateTime(path & fileName)
+        If fileDate > mostRecentDate Then
+            mostRecentDate = fileDate
+            mostRecentFile = fileName
+        End If
+        fileName = Dir
+    Loop
+    
+    GetMostRecentFile = mostRecentFile
+End Function
