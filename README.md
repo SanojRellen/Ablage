@@ -1,86 +1,48 @@
-Sub ParseAndFillMostRecentXML()
-    Dim xmlDocSource As MSXML2.DOMDocument60
-    Dim xmlDocTemplate As MSXML2.DOMDocument60
-    Dim sourceNode As IXMLDOMNode
-    Dim templateNode As IXMLDOMNode
-    
-    ' Define paths
-    Dim pickupPath As String
-    Dim storagePath As String
-    Dim templatePath As String
-    Dim inputFileName As String
-    Dim outputFileName As String
-    
-    pickupPath = "C:\path\to\input\files\" ' Change to your input files directory
-    storagePath = "C:\path\to\output\files\" ' Change to your output files directory
-    templatePath = "C:\path\to\template\template.xml" ' Change to your template file path
-    
-    ' Find the most recent file in the pickup path
-    inputFileName = GetMostRecentFile(pickupPath)
-    If inputFileName = "" Then
-        MsgBox "No XML files found in the pickup path.", vbExclamation
-        Exit Sub
-    End If
-    
-    ' Create the output file name
-    outputFileName = "filled_" & inputFileName
-    
-    ' Create XML document objects
-    Set xmlDocSource = New MSXML2.DOMDocument60
-    Set xmlDocTemplate = New MSXML2.DOMDocument60
-    
-    ' Load the template XML file
-    If Not xmlDocTemplate.Load(templatePath) Then
-        MsgBox "Failed to load template XML file.", vbExclamation
-        Exit Sub
-    End If
-    
-    ' Load the input XML file
-    If xmlDocSource.Load(pickupPath & inputFileName) Then
-        ' Find the nameLong node in the source XML
-        Set sourceNode = xmlDocSource.SelectSingleNode("//nameLong")
-        If Not sourceNode Is Nothing Then
-            ' Find the Name node in the template XML
-            Set templateNode = xmlDocTemplate.SelectSingleNode("//Name")
-            If Not templateNode Is Nothing Then
-                ' Replace the text content
-                templateNode.Text = sourceNode.Text
-                
-                ' Save the modified template XML to the storage path
-                xmlDocTemplate.Save storagePath & outputFileName
-            Else
-                MsgBox "Name node not found in template XML.", vbExclamation
-            End If
-        Else
-            MsgBox "nameLong node not found in input XML.", vbExclamation
-        End If
-    Else
-        MsgBox "Failed to load input XML file.", vbExclamation
-    End If
-    
-    MsgBox "XML Processing Completed!", vbInformation
-End Sub
+Sub CalculateAndTransferToWord()
+    Dim wordApp As Object
+    Dim wordDoc As Object
+    Dim bookmarkName As String
+    Dim rate As Double
+    Dim years As Double
+    Dim principal As Double
+    Dim resultValue As Double
+    Dim formattedResult As String
 
-Function GetMostRecentFile(path As String) As String
-    Dim fileName As String
-    Dim mostRecentFile As String
-    Dim mostRecentDate As Date
-    Dim fileDate As Date
+    ' Define the bookmark name in the Word document
+    bookmarkName = "YourBookmarkName"
+
+    ' Extract the numeric part of the percentage from C23
+    rate = Val(Replace(templateWs.Range("C23").Value, "%", "")) / 100
     
-    fileName = Dir(path & "*.xml")
-    If fileName = "" Then Exit Function
+    ' Extract the numeric part of the years from C16
+    years = Val(templateWs.Range("C16").Value)
     
-    mostRecentFile = fileName
-    mostRecentDate = FileDateTime(path & fileName)
+    ' Get the value from C31 (the principal amount)
+    principal = templateWs.Range("C31").Value
     
-    Do While fileName <> ""
-        fileDate = FileDateTime(path & fileName)
-        If fileDate > mostRecentDate Then
-            mostRecentDate = fileDate
-            mostRecentFile = fileName
-        End If
-        fileName = Dir
-    Loop
+    ' Perform the calculation: years * rate * principal
+    resultValue = years * rate * principal
     
-    GetMostRecentFile = mostRecentFile
-End Function
+    ' Format the result as a number with two decimals
+    formattedResult = Format(resultValue, "#,##0.00")
+    
+    ' Assuming you have already set up Word application and document
+    Set wordApp = CreateObject("Word.Application")
+    Set wordDoc = wordApp.Documents.Open("C:\path\to\your\word\document.docx")
+    
+    ' Insert the formatted result into the Word document at the bookmark
+    If wordDoc.Bookmarks.Exists(bookmarkName) Then
+        wordDoc.Bookmarks(bookmarkName).Range.Text = formattedResult
+    Else
+        MsgBox "Bookmark not found in Word document.", vbExclamation
+    End If
+    
+    ' Save and close the Word document
+    wordDoc.Save
+    wordDoc.Close
+    wordApp.Quit
+    
+    ' Clean up
+    Set wordDoc = Nothing
+    Set wordApp = Nothing
+End Sub
