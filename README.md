@@ -1,3 +1,37 @@
+Sub ConvertPercentagesToEUR()
+    Dim cell As Range
+    Dim originalValue As String
+    Dim numericValue As Double
+    Dim formattedValue As String
+    
+    ' Loop through each cell in the range C20:H20
+    For Each cell In Range("C20:H20")
+        ' Get the value from the cell
+        originalValue = cell.Value
+        
+        ' Remove the "%" sign
+        originalValue = Left(originalValue, Len(originalValue) - 1)
+        
+        ' Convert to a numeric value and divide by 100
+        numericValue = CDbl(originalValue) / 100
+        
+        ' Format the number with a comma instead of a period
+        formattedValue = Replace(CStr(numericValue), ".", ",")
+        
+        ' Append " EUR"
+        formattedValue = formattedValue & " EUR"
+        
+        ' Place the formatted value back into the same cell
+        cell.Value = formattedValue
+    Next cell
+End Sub
+
+
+
+
+
+
+
 
 Sub ParseAndFillMostRecentXML()
     Dim xmlDocSource As MSXML2.DOMDocument60
