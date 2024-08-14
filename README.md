@@ -1,26 +1,27 @@
-Sub ConvertToTextAndFormat()
+Sub FormatAndAppendEUR()
     Dim cell As Range
-    Dim originalValue As String
     Dim formattedValue As String
     
     ' Loop through each cell in the range C20:H20
     For Each cell In Range("C20:H20")
-        ' Set the cell's format to text
-        cell.NumberFormat = "@"
+        ' Convert the cell value to a number format with two decimal places
+        cell.NumberFormat = "0.00"
         
-        ' Get the current value of the cell
-        originalValue = cell.Value
-        
-        ' Replace all periods with commas
-        formattedValue = Replace(originalValue, ".", ",")
+        ' Get the current value of the cell, ensuring it shows two decimal places
+        formattedValue = Format(cell.Value, "0.00")
         
         ' Append " EUR"
         formattedValue = formattedValue & " EUR"
         
         ' Update the cell with the new formatted value
         cell.Value = formattedValue
+        
+        ' Set the cell format to Text to keep the " EUR" part
+        cell.NumberFormat = "@"
     Next cell
 End Sub
+
+
 
 
 
