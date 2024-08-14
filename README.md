@@ -1,3 +1,4 @@
+
 Sub ParseAndFillMostRecentXML()
     Dim xmlDocSource As MSXML2.DOMDocument60
     Dim xmlDocTemplate As MSXML2.DOMDocument60
@@ -16,7 +17,29 @@ Sub ParseAndFillMostRecentXML()
     templatePath = "C:\path\to\template\template.xml" ' Change to your template file path
     
     ' Find the most recent file in the pickup path
-    inputFileName = GetMostRecentFile(pickupPath)
+    inputFileName = ""
+    Dim fileName As String
+    Dim mostRecentFile As String
+    Dim mostRecentDate As Date
+    Dim fileDate As Date
+    
+    fileName = Dir(pickupPath & "*.xml")
+    If fileName <> "" Then
+        mostRecentFile = fileName
+        mostRecentDate = FileDateTime(pickupPath & fileName)
+        
+        Do While fileName <> ""
+            fileDate = FileDateTime(pickupPath & fileName)
+            If fileDate > mostRecentDate Then
+                mostRecentDate = fileDate
+                mostRecentFile = fileName
+            End If
+            fileName = Dir
+        Loop
+        
+        inputFileName = mostRecentFile
+    End If
+    
     If inputFileName = "" Then
         MsgBox "No XML files found in the pickup path.", vbExclamation
         Exit Sub
@@ -60,27 +83,3 @@ Sub ParseAndFillMostRecentXML()
     
     MsgBox "XML Processing Completed!", vbInformation
 End Sub
-
-Function GetMostRecentFile(path As String) As String
-    Dim fileName As String
-    Dim mostRecentFile As String
-    Dim mostRecentDate As Date
-    Dim fileDate As Date
-    
-    fileName = Dir(path & "*.xml")
-    If fileName = "" Then Exit Function
-    
-    mostRecentFile = fileName
-    mostRecentDate = FileDateTime(path & fileName)
-    
-    Do While fileName <> ""
-        fileDate = FileDateTime(path & fileName)
-        If fileDate > mostRecentDate Then
-            mostRecentDate = fileDate
-            mostRecentFile = fileName
-        End If
-        fileName = Dir
-    Loop
-    
-    GetMostRecentFile = mostRecentFile
-End Function
