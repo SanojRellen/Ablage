@@ -1,22 +1,22 @@
-Sub ConvertPercentagesToEUR()
+
+Sub ConvertPercentagesToEURText()
     Dim cell As Range
     Dim originalValue As String
-    Dim numericValue As Double
+    Dim cleanedValue As String
     Dim formattedValue As String
+    Dim length As Integer
     
     ' Loop through each cell in the range C20:H20
     For Each cell In Range("C20:H20")
-        ' Get the value from the cell
-        originalValue = cell.Value
+        ' Convert the cell value to text
+        originalValue = CStr(cell.Value)
         
-        ' Remove the "%" sign
-        originalValue = Left(originalValue, Len(originalValue) - 1)
+        ' Remove the last character (assuming it's a "%")
+        cleanedValue = Left(originalValue, Len(originalValue) - 1)
         
-        ' Convert to a numeric value and divide by 100
-        numericValue = CDbl(originalValue) / 100
-        
-        ' Format the number with a comma instead of a period
-        formattedValue = Replace(CStr(numericValue), ".", ",")
+        ' Insert a comma after two digits from the right
+        length = Len(cleanedValue)
+        formattedValue = Left(cleanedValue, length - 2) & "," & Right(cleanedValue, 2)
         
         ' Append " EUR"
         formattedValue = formattedValue & " EUR"
