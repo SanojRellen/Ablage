@@ -1,4 +1,5 @@
-Sub FormatAndAppendEUR()
+
+Sub FormatAndAppendEURWithComma()
     Dim cell As Range
     Dim formattedValue As String
     
@@ -9,6 +10,9 @@ Sub FormatAndAppendEUR()
         
         ' Get the current value of the cell, ensuring it shows two decimal places
         formattedValue = Format(cell.Value, "0.00")
+        
+        ' Replace the period with a comma
+        formattedValue = Replace(formattedValue, ".", ",")
         
         ' Append " EUR"
         formattedValue = formattedValue & " EUR"
