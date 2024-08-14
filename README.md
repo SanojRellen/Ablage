@@ -1,29 +1,29 @@
-
-Sub FormatAndAppendEURWithComma()
-    Dim cell As Range
-    Dim formattedValue As String
+Sub ConvertAndMultiplyEUR()
+    Dim numberValue As Double
+    Dim eurText As String
+    Dim extractedValue As String
+    Dim result As Double
     
-    ' Loop through each cell in the range C20:H20
-    For Each cell In Range("C20:H20")
-        ' Convert the cell value to a number format with two decimal places
-        cell.NumberFormat = "0.00"
-        
-        ' Get the current value of the cell, ensuring it shows two decimal places
-        formattedValue = Format(cell.Value, "0.00")
-        
-        ' Replace the period with a comma
-        formattedValue = Replace(formattedValue, ".", ",")
-        
-        ' Append " EUR"
-        formattedValue = formattedValue & " EUR"
-        
-        ' Update the cell with the new formatted value
-        cell.Value = formattedValue
-        
-        ' Set the cell format to Text to keep the " EUR" part
-        cell.NumberFormat = "@"
-    Next cell
+    ' Get the text value from B31
+    eurText = Range("B31").Value
+    
+    ' Remove " EUR" and convert the comma to a period for calculation
+    extractedValue = Replace(eurText, " EUR", "")
+    extractedValue = Replace(extractedValue, ",", ".")
+    
+    ' Convert the extracted text to a number
+    numberValue = CDbl(extractedValue)
+    
+    ' Multiply by the value in B30
+    result = numberValue * Range("B30").Value
+    
+    ' Paste the result into C30
+    Range("C30").Value = result
+    
+    ' Optionally format C30 with two decimal places and a comma
+    Range("C30").NumberFormat = "#,##0.00"
 End Sub
+
 
 
 
