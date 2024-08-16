@@ -1,9 +1,9 @@
-Sub PartiallyFillNode()
+Sub FillKurznameWithYear()
     Dim xmlDocSource As MSXML2.DOMDocument60
     Dim xmlDocTemplate As MSXML2.DOMDocument60
     Dim sourceNode As IXMLDOMNode
     Dim templateNode As IXMLDOMNode
-    Dim extractedDate As String
+    Dim extractedYear As String
     
     ' Load the XML documents
     Set xmlDocSource = New MSXML2.DOMDocument60
@@ -12,24 +12,24 @@ Sub PartiallyFillNode()
     xmlDocSource.Load "C:\path\to\your\source.xml" ' Update with your source XML file path
     xmlDocTemplate.Load "C:\path\to\your\template.xml" ' Update with your template XML file path
     
-    ' Find the date node in the source XML
-    Set sourceNode = xmlDocSource.SelectSingleNode("//Date")
+    ' Find the maturity date node in the source XML
+    Set sourceNode = xmlDocSource.SelectSingleNode("//MaturityDate") ' Update with the actual node name
     
     If Not sourceNode Is Nothing Then
-        ' Extract the date value
-        extractedDate = sourceNode.Text
+        ' Extract the year (last two digits) from the date
+        extractedYear = Right(sourceNode.Text, 2)
         
-        ' Find the target node in the template XML
-        Set templateNode = xmlDocTemplate.SelectSingleNode("//TargetNode") ' Update TargetNode with the actual node name
+        ' Find the Kurzname node in the template XML
+        Set templateNode = xmlDocTemplate.SelectSingleNode("//Kurzname") ' Update with the actual node name
         
         If Not templateNode Is Nothing Then
             ' Construct the desired text
-            templateNode.Text = "EXPR.ZT SD A " & extractedDate & " SX5E"
+            templateNode.Text = "BARCL.BK EXP.Z" & extractedYear & " SX5E"
         Else
-            MsgBox "Target node not found in template XML.", vbExclamation
+            MsgBox "Kurzname node not found in template XML.", vbExclamation
         End If
     Else
-        MsgBox "Date node not found in source XML.", vbExclamation
+        MsgBox "MaturityDate node not found in source XML.", vbExclamation
     End If
     
     ' Save the modified template XML
