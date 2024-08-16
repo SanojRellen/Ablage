@@ -1,28 +1,37 @@
- Sub DeleteCommentAfterTelefon()
-    Dim xmlDoc As MSXML2.DOMDocument60
-    Dim telefonNode As IXMLDOMNode
-    Dim commentNode As IXMLDOMNode
+Sub PartiallyFillNode()
+    Dim xmlDocSource As MSXML2.DOMDocument60
+    Dim xmlDocTemplate As MSXML2.DOMDocument60
+    Dim sourceNode As IXMLDOMNode
+    Dim templateNode As IXMLDOMNode
+    Dim extractedDate As String
     
-    ' Load the XML document
-    Set xmlDoc = New MSXML2.DOMDocument60
-    xmlDoc.Load "C:\path\to\your\file.xml" ' Update with your XML file path
+    ' Load the XML documents
+    Set xmlDocSource = New MSXML2.DOMDocument60
+    Set xmlDocTemplate = New MSXML2.DOMDocument60
     
-    ' Find the Telefon node
-    Set telefonNode = xmlDoc.SelectSingleNode("//Telefon")
+    xmlDocSource.Load "C:\path\to\your\source.xml" ' Update with your source XML file path
+    xmlDocTemplate.Load "C:\path\to\your\template.xml" ' Update with your template XML file path
     
-    If Not telefonNode Is Nothing Then
-        ' Find the comment node after the Telefon node
-        Set commentNode = telefonNode.NextSibling
+    ' Find the date node in the source XML
+    Set sourceNode = xmlDocSource.SelectSingleNode("//Date")
+    
+    If Not sourceNode Is Nothing Then
+        ' Extract the date value
+        extractedDate = sourceNode.Text
         
-        ' Ensure the comment is the one we're targeting
-        If Not commentNode Is Nothing And commentNode.NodeType = MSXML2.NODE_COMMENT Then
-            If InStr(commentNode.Text, "bitte einfügen") > 0 Then
-                ' Remove the comment node
-                telefonNode.ParentNode.RemoveChild commentNode
-            End If
+        ' Find the target node in the template XML
+        Set templateNode = xmlDocTemplate.SelectSingleNode("//TargetNode") ' Update TargetNode with the actual node name
+        
+        If Not templateNode Is Nothing Then
+            ' Construct the desired text
+            templateNode.Text = "EXPR.ZT SD A " & extractedDate & " SX5E"
+        Else
+            MsgBox "Target node not found in template XML.", vbExclamation
         End If
+    Else
+        MsgBox "Date node not found in source XML.", vbExclamation
     End If
     
-    ' Save the modified XML
-    xmlDoc.Save "C:\path\to\your\filled_file.xml" ' Update with your output file path
+    ' Save the modified template XML
+    xmlDocTemplate.Save "C:\path\to\your\filled_file.xml" ' Update with your output file path
 End Sub
