@@ -54,3 +54,66 @@ Sub AdjustAndFillTemplate()
     
     MsgBox "Template has been adjusted and filled successfully!", vbInformation
 End Sub
+
+
+
+
+
+
+
+
+
+
+
+Sub InsertBulletPointsFromExcel()
+    ' Define variables
+    Dim ExcelApp As Object
+    Dim Workbook As Object
+    Dim CouponRate As String
+    Dim StartDate As Date
+    Dim EndDate As Date
+    Dim NumberOfPeriods As Integer
+    Dim i As Integer
+    Dim CurrentCouponDate As Date
+    Dim BookmarkRange As Range
+
+    ' Initialize Excel and open the workbook
+    Set ExcelApp = CreateObject("Excel.Application")
+    Set Workbook = ExcelApp.Workbooks.Open("Path to your Excel file")
+
+    ' Read values from Excel
+    CouponRate = Workbook.Sheets("Sheet1").Range("D23").Value
+    StartDate = Workbook.Sheets("Sheet1").Range("C15").Value
+    EndDate = Workbook.Sheets("Sheet1").Range("C14").Value
+
+    ' Calculate the number of periods (years) between the end date and start date
+    NumberOfPeriods = Year(EndDate) - Year(StartDate)
+
+    ' Get the range of the bookmark
+    Set BookmarkRange = ActiveDocument.Bookmarks("Bookmark1").Range
+
+    ' Clear any existing text in the bookmark
+    BookmarkRange.Text = ""
+
+    ' Start with the last coupon date (End Date)
+    CurrentCouponDate = EndDate
+
+    ' Loop through each period and insert bullet points
+    For i = 0 To NumberOfPeriods - 1
+        ' Insert the bullet point with the coupon rate and the current coupon date
+        BookmarkRange.InsertAfter (i + 1) & ") " & CouponRate & " " & Format(CurrentCouponDate, "dd.mm.yyyy") & vbCrLf
+
+        ' Move to the previous year's coupon date
+        CurrentCouponDate = DateAdd("yyyy", -1, CurrentCouponDate)
+    Next i
+
+    ' Re-apply the bookmark to the updated range
+    ActiveDocument.Bookmarks.Add "Bookmark1", BookmarkRange
+
+    ' Clean up
+    Workbook.Close False
+    ExcelApp.Quit
+    Set ExcelApp = Nothing
+    Set Workbook = Nothing
+End Sub
+
