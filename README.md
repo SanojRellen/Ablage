@@ -64,12 +64,11 @@ End Sub
 
 
 
-
-Sub PopulateCouponAndDates()
+Sub CalculatePeriodsAndPopulate()
     ' Define variables
     Dim CouponRate As String
-    Dim StartDate As Date
-    Dim EndDate As Date
+    Dim StartYear As Integer
+    Dim EndYear As Integer
     Dim NumberOfPeriods As Integer
     Dim i As Integer
     Dim CouponRange As Range
@@ -77,25 +76,28 @@ Sub PopulateCouponAndDates()
 
     ' Read values from the sheet
     CouponRate = Range("D23").Value
-    StartDate = Range("C15").Value
-    EndDate = Range("C14").Value
-
-    ' Calculate the number of periods (years) between start date and end date
-    NumberOfPeriods = Year(EndDate) - Year(StartDate)
-
+    
+    ' Extract last 4 characters (year) and convert to Integer
+    StartYear = CInt(Right(Range("C15").Value, 4))
+    EndYear = CInt(Right(Range("C14").Value, 4))
+    
+    ' Calculate the number of periods (years) between the years
+    NumberOfPeriods = EndYear - StartYear
+    
     ' Set the ranges for the coupons and dates
     Set CouponRange = Range("G23:L23")
     Set DateRange = Range("G15:L15")
-
+    
     ' Clear any existing values in these ranges
     CouponRange.ClearContents
     DateRange.ClearContents
-
+    
     ' Populate the coupon rates and dates
     For i = 0 To NumberOfPeriods - 1
         ' Populate the coupon rate
         CouponRange.Cells(1, i + 1).Value = CouponRate
-        ' Populate the date, one year after the start date
-        DateRange.Cells(1, i + 1).Value = DateAdd("yyyy", i + 1, StartDate)
+        ' Populate the date, one year after the start year
+        DateRange.Cells(1, i + 1).Value = DateAdd("yyyy", i + 1, Range("C15").Value)
     Next i
 End Sub
+
