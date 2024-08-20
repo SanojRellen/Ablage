@@ -65,55 +65,37 @@ End Sub
 
 
 
-Sub InsertBulletPointsFromExcel()
+Sub PopulateCouponAndDates()
     ' Define variables
-    Dim ExcelApp As Object
-    Dim Workbook As Object
     Dim CouponRate As String
     Dim StartDate As Date
     Dim EndDate As Date
     Dim NumberOfPeriods As Integer
     Dim i As Integer
-    Dim CurrentCouponDate As Date
-    Dim BookmarkRange As Range
+    Dim CouponRange As Range
+    Dim DateRange As Range
 
-    ' Initialize Excel and open the workbook
-    Set ExcelApp = CreateObject("Excel.Application")
-    Set Workbook = ExcelApp.Workbooks.Open("Path to your Excel file")
+    ' Read values from the sheet
+    CouponRate = Range("D23").Value
+    StartDate = Range("C15").Value
+    EndDate = Range("C14").Value
 
-    ' Read values from Excel
-    CouponRate = Workbook.Sheets("Sheet1").Range("D23").Value
-    StartDate = Workbook.Sheets("Sheet1").Range("C15").Value
-    EndDate = Workbook.Sheets("Sheet1").Range("C14").Value
-
-    ' Calculate the number of periods (years) between the end date and start date
+    ' Calculate the number of periods (years) between start date and end date
     NumberOfPeriods = Year(EndDate) - Year(StartDate)
 
-    ' Get the range of the bookmark
-    Set BookmarkRange = ActiveDocument.Bookmarks("Bookmark1").Range
+    ' Set the ranges for the coupons and dates
+    Set CouponRange = Range("G23:L23")
+    Set DateRange = Range("G15:L15")
 
-    ' Clear any existing text in the bookmark
-    BookmarkRange.Text = ""
+    ' Clear any existing values in these ranges
+    CouponRange.ClearContents
+    DateRange.ClearContents
 
-    ' Start with the last coupon date (End Date)
-    CurrentCouponDate = EndDate
-
-    ' Loop through each period and insert bullet points
+    ' Populate the coupon rates and dates
     For i = 0 To NumberOfPeriods - 1
-        ' Insert the bullet point with the coupon rate and the current coupon date
-        BookmarkRange.InsertAfter (i + 1) & ") " & CouponRate & " " & Format(CurrentCouponDate, "dd.mm.yyyy") & vbCrLf
-
-        ' Move to the previous year's coupon date
-        CurrentCouponDate = DateAdd("yyyy", -1, CurrentCouponDate)
+        ' Populate the coupon rate
+        CouponRange.Cells(1, i + 1).Value = CouponRate
+        ' Populate the date, one year after the start date
+        DateRange.Cells(1, i + 1).Value = DateAdd("yyyy", i + 1, StartDate)
     Next i
-
-    ' Re-apply the bookmark to the updated range
-    ActiveDocument.Bookmarks.Add "Bookmark1", BookmarkRange
-
-    ' Clean up
-    Workbook.Close False
-    ExcelApp.Quit
-    Set ExcelApp = Nothing
-    Set Workbook = Nothing
 End Sub
-
