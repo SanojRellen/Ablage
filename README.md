@@ -63,42 +63,35 @@ End Sub
 
 
 
+Sub PopulateAndCleanWordDocument()
+    ' Your existing Excel code for populating the document goes here
+    ' ...
 
-Sub CalculatePeriodsAndPopulate()
-    ' Define variables
-    Dim CouponRate As String
-    Dim StartYear As Integer
-    Dim EndYear As Integer
-    Dim NumberOfPeriods As Integer
+    ' Assuming wdDoc is already defined and represents the Word document
+    ' Now we add the part that checks bookmarks and deletes rows if empty
+
     Dim i As Integer
-    Dim CouponRange As Range
-    Dim DateRange As Range
-    Dim StartDayMonth As String
+    Dim bookmarkName As String
+    Dim bmRange As Object ' Use Object type since we are working with Word objects in Excel
 
-    ' Read values from the sheet
-    CouponRate = Range("D23").Value
-    
-    ' Extract the year and day-month components
-    StartYear = CInt(Right(Range("C15").Value, 4))
-    EndYear = CInt(Right(Range("C14").Value, 4))
-    StartDayMonth = Left(Range("C15").Value, 6) ' "28.03."
+    ' Loop through bookmarks Zinszahlungstag_1 to Zinszahlungstag_6
+    For i = 1 To 6
+        ' Construct the bookmark name
+        bookmarkName = "Zinszahlungstag_" & i
 
-    ' Calculate the number of periods (years) between the years
-    NumberOfPeriods = EndYear - StartYear
-    
-    ' Set the ranges for the coupons and dates
-    Set CouponRange = Range("G23:L23")
-    Set DateRange = Range("G15:L15")
-    
-    ' Clear any existing values in these ranges
-    CouponRange.ClearContents
-    DateRange.ClearContents
-    
-    ' Populate the coupon rates and dates
-    For i = 0 To NumberOfPeriods - 1
-        ' Populate the coupon rate
-        CouponRange.Cells(1, i + 1).Value = CouponRate
-        ' Populate the constructed date as a string
-        DateRange.Cells(1, i + 1).Value = StartDayMonth & (StartYear + i + 1)
+        ' Check if the bookmark exists
+        If wdDoc.Bookmarks.Exists(bookmarkName) Then
+            ' Set the range of the bookmark
+            Set bmRange = wdDoc.Bookmarks(bookmarkName).Range
+            
+            ' Check if the bookmark range is empty
+            If Len(Trim(bmRange.Text)) = 0 Then
+                ' If the range is empty, delete the entire row
+                bmRange.Rows(1).Delete
+            End If
+        End If
     Next i
+
+    ' Continue with any remaining Excel macro code
+    ' ...
 End Sub
