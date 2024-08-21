@@ -63,56 +63,79 @@ End Sub
 
 
 
-Sub CalculateAndInsertInterest()
+
+
+Sub CalculateCumulativeCoupon()
+
     Dim principal As Double
     Dim rate As Double
     Dim startDate As Date
     Dim endDate As Date
-    Dim duration1 As Double
-    Dim duration2 As Double
-    Dim interest1 As Double
-    Dim interest2 As Double
-    Dim totalInterest As Double
+    Dim currentYearStart As Date
+    Dim currentYearEnd As Date
+    Dim fullYears As Integer
+    Dim remainingDays As Integer
+    Dim i As Integer
+    Dim couponPayment As Double
+    Dim Kupon_kumuliert_Zwischenergebnis As Double
     
-    ' Get values from the Excel sheet
-    principal = Range("C14").Value ' Assuming principal is in C14
-    rate = Range("C16").Value ' Assuming rate is in C16
-    startDate = Range("C15").Value
-    endDate = Range("C17").Value
+    ' Example values
+    principal = 100000 ' Assign the principal amount here
+    rate = 0.05 ' Assign the annual interest rate here (e.g., 5% as 0.05)
+    startDate = Range("C15").Value ' Start date in cell C15
+    endDate = Range("C17").Value ' End date in cell C17
     
-    ' Calculate duration in 30/360 convention
-    Dim year1 As Double, year2 As Double
+    ' Initialize cumulative coupon
+    Kupon_kumuliert_Zwischenergebnis = 0
     
-    ' Calculate full years first
-    year1 = 1 ' First full year is always 360/360
-    year2 = 359 / 360 ' Second period has 359 days (missing one day)
-
-    ' Calculate interest
-    interest1 = principal * rate * year1
-    interest2 = principal * rate * year2
-    totalInterest = interest1 + interest2
-
-    ' Open Word and insert the result in the bookmark
-    Dim wdApp As Object
-    Dim wdDoc As Object
+    ' Calculate the number of full years
+    fullYears = Year(endDate) - Year(startDate)
     
-    ' Open Word application
-    Set wdApp = CreateObject("Word.Application")
-    wdApp.Visible = True ' Set to False if you don't want Word to be visible
+    ' Loop through each full year
+    For i = 0 To fullYears - 1
+        ' Set the start and end of the current year in the loop
+        currentYearStart = DateSerial(Year(startDate) + i, Month(startDate), Day(startDate))
+        currentYearEnd = DateSerial(Year(startDate) + i + 1, Month(startDate), Day(startDate)) - 1
+        
+        ' Check if it's the last year in the range
+        If i = fullYears - 1 Then
+            ' Adjust the end date for the last period
+            currentYearEnd = endDate
+        End If
+        
+        ' Calculate remaining days in the final year, or use 360 for full years
+        If currentYearEnd < endDate Then
+            remainingDays = 360
+        Else
+            remainingDays = Day360(currentYearStart, currentYearEnd)
+        End If
+        
+        ' Calculate coupon payment for the current year
+        couponPayment = principal * rate * (remainingDays / 360)
+        Kupon_kumuliert_Zwischenergebnis = Kupon_kumuliert_Zwischenergebnis + couponPayment
+    Next i
     
-    ' Open the Word document
-    Set wdDoc = wdApp.Documents.Open("C:\path\to\your\document.docx")
+    ' Output the cumulative coupon payment result
+    MsgBox "Kupon_kumuliert_Zwischenergebnis: " & Format(Kupon_kumuliert_Zwischenergebnis, "0.00")
     
-    ' Insert totalInterest into the bookmark
-    With wdDoc.Bookmarks("YourBookmarkName").Range
-        .Text = Format(totalInterest, "0.00") ' Format to 2 decimal places
-    End With
-    
-    ' Save and close the Word document
-    wdDoc.Save
-    wdDoc.Close
-    
-    ' Clean up
-    Set wdDoc = Nothing
-    Set wdApp = Nothing
 End Sub
+
+Function Day360(start_date As Date, end_date As Date) As Integer
+    ' Day count convention 30/360 calculation
+    Dim d1 As Integer, d2 As Integer, m1 As Integer, m2 As Integer, y1 As Integer, y2 As Integer
+    
+    d1 = Day(start_date)
+    d2 = Day(end_date)
+    m1 = Month(start_date)
+    m2 = Month(end_date)
+    y1 = Year(start_date)
+    y2 = Year(end_date)
+    
+    ' Adjust day for 30/360 convention
+    If d1 = 31 Then d1 = 30
+    If d2 = 31 And d1 = 30 Then d2 = 30
+    
+    Day360 = 360 * (y2 - y1) + 30 * (m2 - m1) + (d2 - d1)
+End Function
+
+
