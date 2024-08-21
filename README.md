@@ -65,77 +65,28 @@ End Sub
 
 
 
-Sub CalculateCumulativeCoupon()
 
-    Dim principal As Double
-    Dim rate As Double
-    Dim startDate As Date
-    Dim endDate As Date
-    Dim currentYearStart As Date
-    Dim currentYearEnd As Date
-    Dim fullYears As Integer
-    Dim remainingDays As Integer
-    Dim i As Integer
-    Dim couponPayment As Double
-    Dim Kupon_kumuliert_Zwischenergebnis As Double
-    
-    ' Example values
-    principal = 100000 ' Assign the principal amount here
-    rate = 0.05 ' Assign the annual interest rate here (e.g., 5% as 0.05)
-    startDate = Range("C15").Value ' Start date in cell C15
-    endDate = Range("C17").Value ' End date in cell C17
-    
-    ' Initialize cumulative coupon
-    Kupon_kumuliert_Zwischenergebnis = 0
-    
-    ' Calculate the number of full years
-    fullYears = Year(endDate) - Year(startDate)
-    
-    ' Loop through each full year
-    For i = 0 To fullYears - 1
-        ' Set the start and end of the current year in the loop
-        currentYearStart = DateSerial(Year(startDate) + i, Month(startDate), Day(startDate))
-        currentYearEnd = DateSerial(Year(startDate) + i + 1, Month(startDate), Day(startDate)) - 1
-        
-        ' Check if it's the last year in the range
-        If i = fullYears - 1 Then
-            ' Adjust the end date for the last period
-            currentYearEnd = endDate
+
+Sub AdjustToLastBusinessDay()
+    Dim cell As Range
+    Dim checkDate As Date
+    Dim dayOfWeek As Integer
+
+    ' Loop through each cell in the range G23:L23
+    For Each cell In Range("G23:L23")
+        ' Check if the cell is not empty
+        If Not IsEmpty(cell.Value) Then
+            ' Get the date from the cell
+            checkDate = cell.Value
+            
+            ' Get the day of the week (1 = Sunday, 2 = Monday, ..., 7 = Saturday)
+            dayOfWeek = Weekday(checkDate, vbMonday)
+            
+            ' If the date is Saturday (dayOfWeek = 6) or Sunday (dayOfWeek = 7)
+            If dayOfWeek > 5 Then
+                ' Adjust to the previous Friday
+                cell.Value = checkDate - (dayOfWeek - 5)
+            End If
         End If
-        
-        ' Calculate remaining days in the final year, or use 360 for full years
-        If currentYearEnd < endDate Then
-            remainingDays = 360
-        Else
-            remainingDays = Day360(currentYearStart, currentYearEnd)
-        End If
-        
-        ' Calculate coupon payment for the current year
-        couponPayment = principal * rate * (remainingDays / 360)
-        Kupon_kumuliert_Zwischenergebnis = Kupon_kumuliert_Zwischenergebnis + couponPayment
-    Next i
-    
-    ' Output the cumulative coupon payment result
-    MsgBox "Kupon_kumuliert_Zwischenergebnis: " & Format(Kupon_kumuliert_Zwischenergebnis, "0.00")
-    
+    Next cell
 End Sub
-
-Function Day360(start_date As Date, end_date As Date) As Integer
-    ' Day count convention 30/360 calculation
-    Dim d1 As Integer, d2 As Integer, m1 As Integer, m2 As Integer, y1 As Integer, y2 As Integer
-    
-    d1 = Day(start_date)
-    d2 = Day(end_date)
-    m1 = Month(start_date)
-    m2 = Month(end_date)
-    y1 = Year(start_date)
-    y2 = Year(end_date)
-    
-    ' Adjust day for 30/360 convention
-    If d1 = 31 Then d1 = 30
-    If d2 = 31 And d1 = 30 Then d2 = 30
-    
-    Day360 = 360 * (y2 - y1) + 30 * (m2 - m1) + (d2 - d1)
-End Function
-
-
