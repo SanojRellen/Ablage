@@ -63,35 +63,56 @@ End Sub
 
 
 
-Sub PopulateAndCleanWordDocument()
-    ' Your existing Excel code for populating the document goes here
-    ' ...
+Sub CalculateAndInsertInterest()
+    Dim principal As Double
+    Dim rate As Double
+    Dim startDate As Date
+    Dim endDate As Date
+    Dim duration1 As Double
+    Dim duration2 As Double
+    Dim interest1 As Double
+    Dim interest2 As Double
+    Dim totalInterest As Double
+    
+    ' Get values from the Excel sheet
+    principal = Range("C14").Value ' Assuming principal is in C14
+    rate = Range("C16").Value ' Assuming rate is in C16
+    startDate = Range("C15").Value
+    endDate = Range("C17").Value
+    
+    ' Calculate duration in 30/360 convention
+    Dim year1 As Double, year2 As Double
+    
+    ' Calculate full years first
+    year1 = 1 ' First full year is always 360/360
+    year2 = 359 / 360 ' Second period has 359 days (missing one day)
 
-    ' Assuming wdDoc is already defined and represents the Word document
-    ' Now we add the part that checks bookmarks and deletes rows if empty
+    ' Calculate interest
+    interest1 = principal * rate * year1
+    interest2 = principal * rate * year2
+    totalInterest = interest1 + interest2
 
-    Dim i As Integer
-    Dim bookmarkName As String
-    Dim bmRange As Object ' Use Object type since we are working with Word objects in Excel
-
-    ' Loop through bookmarks Zinszahlungstag_1 to Zinszahlungstag_6
-    For i = 1 To 6
-        ' Construct the bookmark name
-        bookmarkName = "Zinszahlungstag_" & i
-
-        ' Check if the bookmark exists
-        If wdDoc.Bookmarks.Exists(bookmarkName) Then
-            ' Set the range of the bookmark
-            Set bmRange = wdDoc.Bookmarks(bookmarkName).Range
-            
-            ' Check if the bookmark range is empty
-            If Len(Trim(bmRange.Text)) = 0 Then
-                ' If the range is empty, delete the entire row
-                bmRange.Rows(1).Delete
-            End If
-        End If
-    Next i
-
-    ' Continue with any remaining Excel macro code
-    ' ...
+    ' Open Word and insert the result in the bookmark
+    Dim wdApp As Object
+    Dim wdDoc As Object
+    
+    ' Open Word application
+    Set wdApp = CreateObject("Word.Application")
+    wdApp.Visible = True ' Set to False if you don't want Word to be visible
+    
+    ' Open the Word document
+    Set wdDoc = wdApp.Documents.Open("C:\path\to\your\document.docx")
+    
+    ' Insert totalInterest into the bookmark
+    With wdDoc.Bookmarks("YourBookmarkName").Range
+        .Text = Format(totalInterest, "0.00") ' Format to 2 decimal places
+    End With
+    
+    ' Save and close the Word document
+    wdDoc.Save
+    wdDoc.Close
+    
+    ' Clean up
+    Set wdDoc = Nothing
+    Set wdApp = Nothing
 End Sub
