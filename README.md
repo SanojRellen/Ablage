@@ -1,4 +1,4 @@
-Sub AdjustAndFillTemplate()
+2Sub AdjustAndFillTemplate()
     Dim xmlDocSource As MSXML2.DOMDocument60
     Dim xmlDocTemplate As MSXML2.DOMDocument60
     Dim sourceItemNodes As IXMLDOMNodeList
@@ -66,21 +66,44 @@ End Sub
 
 
 
-
-Sub ConvertMonthYear()
-    Dim cellValue As String
-    Dim dateValue As Date
-    Dim formattedDate As String
-
-    ' Get the value from cell D14
-    cellValue = Range("D14").Value
-
-    ' Convert the cell value to a date (assuming it's in mm/yyyy format)
-    dateValue = DateValue("01/" & cellValue)
-
-    ' Format the date to show the full month name and year
-    formattedDate = Format(dateValue, "mmmm yyyy")
-
-    ' Output the formatted date back into D14 or another cell
-    Range("D14").Value = formattedDate
+Sub ExtractMonthName()
+    Dim monthNumber As String
+    Dim monthName As String
+    
+    ' Extract the first two characters from D14 (the month part)
+    monthNumber = Left(Range("D14").Value, 2)
+    
+    ' Determine the month name based on the extracted month number
+    Select Case monthNumber
+        Case "01"
+            monthName = "January"
+        Case "02"
+            monthName = "February"
+        Case "03"
+            monthName = "March"
+        Case "04"
+            monthName = "April"
+        Case "05"
+            monthName = "May"
+        Case "06"
+            monthName = "June"
+        Case "07"
+            monthName = "July"
+        Case "08"
+            monthName = "August"
+        Case "09"
+            monthName = "September"
+        Case "10"
+            monthName = "October"
+        Case "11"
+            monthName = "November"
+        Case "12"
+            monthName = "December"
+        Case Else
+            monthName = "Invalid Month"
+    End Select
+    
+    ' Write the full month name into E14
+    Range("E14").Value = monthName
 End Sub
+
