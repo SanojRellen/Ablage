@@ -67,26 +67,20 @@ End Sub
 
 
 
-Sub AdjustToLastBusinessDay()
-    Dim cell As Range
-    Dim checkDate As Date
-    Dim dayOfWeek As Integer
+Sub ConvertMonthYear()
+    Dim cellValue As String
+    Dim dateValue As Date
+    Dim formattedDate As String
 
-    ' Loop through each cell in the range G23:L23
-    For Each cell In Range("G23:L23")
-        ' Check if the cell is not empty
-        If Not IsEmpty(cell.Value) Then
-            ' Get the date from the cell
-            checkDate = cell.Value
-            
-            ' Get the day of the week (1 = Sunday, 2 = Monday, ..., 7 = Saturday)
-            dayOfWeek = Weekday(checkDate, vbMonday)
-            
-            ' If the date is Saturday (dayOfWeek = 6) or Sunday (dayOfWeek = 7)
-            If dayOfWeek > 5 Then
-                ' Adjust to the previous Friday
-                cell.Value = checkDate - (dayOfWeek - 5)
-            End If
-        End If
-    Next cell
+    ' Get the value from cell D14
+    cellValue = Range("D14").Value
+
+    ' Convert the cell value to a date (assuming it's in mm/yyyy format)
+    dateValue = DateValue("01/" & cellValue)
+
+    ' Format the date to show the full month name and year
+    formattedDate = Format(dateValue, "mmmm yyyy")
+
+    ' Output the formatted date back into D14 or another cell
+    Range("D14").Value = formattedDate
 End Sub
