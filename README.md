@@ -66,44 +66,16 @@ End Sub
 
 
 
-Sub ExtractMonthName()
-    Dim monthNumber As String
+Sub CombineMonthAndYear()
     Dim monthName As String
-    
-    ' Extract the first two characters from D14 (the month part)
-    monthNumber = Left(Range("D14").Value, 2)
-    
-    ' Determine the month name based on the extracted month number
-    Select Case monthNumber
-        Case "01"
-            monthName = "January"
-        Case "02"
-            monthName = "February"
-        Case "03"
-            monthName = "March"
-        Case "04"
-            monthName = "April"
-        Case "05"
-            monthName = "May"
-        Case "06"
-            monthName = "June"
-        Case "07"
-            monthName = "July"
-        Case "08"
-            monthName = "August"
-        Case "09"
-            monthName = "September"
-        Case "10"
-            monthName = "October"
-        Case "11"
-            monthName = "November"
-        Case "12"
-            monthName = "December"
-        Case Else
-            monthName = "Invalid Month"
-    End Select
-    
-    ' Write the full month name into E14
-    Range("E14").Value = monthName
-End Sub
+    Dim yearPart As String
 
+    ' Get the month name from E14
+    monthName = Range("E14").Value
+    
+    ' Extract the last four characters (the year) from D14
+    yearPart = Right(Range("D14").Value, 4)
+    
+    ' Combine the month name and year with a space in between
+    Range("E14").Value = monthName & " " & yearPart
+End Sub
