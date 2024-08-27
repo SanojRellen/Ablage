@@ -1,4 +1,4 @@
-2Sub AdjustAndFillTemplate()
+Sub AdjustAndFillTemplate()
     Dim xmlDocSource As MSXML2.DOMDocument60
     Dim xmlDocTemplate As MSXML2.DOMDocument60
     Dim sourceItemNodes As IXMLDOMNodeList
@@ -6,8 +6,6 @@
     Dim zinsfestlegungstageNode As IXMLDOMElement
     Dim i As Integer
     Dim sourceItemCount As Integer
-    Dim templateDatumCount As Integer
-    Dim newDatumNode As IXMLDOMElement
     
     ' Load the XML documents
     Set xmlDocSource = New MSXML2.DOMDocument60
@@ -22,26 +20,19 @@
     
     ' Get the list of Datum nodes from the template XML
     Set templateDatumNodes = xmlDocTemplate.SelectNodes("//zinsfestlegungstage/Datum")
-    templateDatumCount = templateDatumNodes.Length
     
-    ' Get the zinsfestlegungstage node in the template to add/remove Datum nodes
+    ' Get the zinsfestlegungstage node in the template to remove Datum nodes if needed
     Set zinsfestlegungstageNode = xmlDocTemplate.SelectSingleNode("//zinsfestlegungstage")
     
-    ' Adjust the number of Datum nodes in the template to match the number of item nodes in the source
-    If sourceItemCount > templateDatumCount Then
-        ' Add additional Datum nodes
-        For i = templateDatumCount + 1 To sourceItemCount
-            Set newDatumNode = xmlDocTemplate.createElement("Datum")
-            zinsfestlegungstageNode.appendChild newDatumNode
-        Next i
-    ElseIf sourceItemCount < templateDatumCount Then
-        ' Remove extra Datum nodes
-        For i = templateDatumCount To sourceItemCount + 1 Step -1
+    ' Check if the number of item nodes is less than 6
+    If sourceItemCount < 6 Then
+        ' Remove extra Datum nodes in the template
+        For i = 6 To sourceItemCount + 1 Step -1
             zinsfestlegungstageNode.removeChild templateDatumNodes.Item(i - 1)
         Next i
     End If
     
-    ' Now, re-select the Datum nodes since they may have been added/removed
+    ' Re-select the Datum nodes after deletion
     Set templateDatumNodes = xmlDocTemplate.SelectNodes("//zinsfestlegungstage/Datum")
     
     ' Fill the Datum nodes with the corresponding dates from the source
@@ -53,29 +44,4 @@
     xmlDocTemplate.Save "C:\path\to\your\filled_template.xml" ' Update with your output file path
     
     MsgBox "Template has been adjusted and filled successfully!", vbInformation
-End Sub
-
-
-
-
-
-
-
-
-
-
-
-
-Sub CombineMonthAndYear()
-    Dim monthName As String
-    Dim yearPart As String
-
-    ' Get the month name from E14
-    monthName = Range("E14").Value
-    
-    ' Extract the last four characters (the year) from D14
-    yearPart = Right(Range("D14").Value, 4)
-    
-    ' Combine the month name and year with a space in between
-    Range("E14").Value = monthName & " " & yearPart
 End Sub
