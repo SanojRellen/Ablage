@@ -44,3 +44,17 @@ Sub InsertWKNandISIN()
         Exit Sub
     End If
     
+    ' Replace the text in the first 'Id' node with the WKN
+    idNodes.Item(0).Text = wknValue
+    
+    ' Replace the text in the second 'Id' node with the ISIN
+    idNodes.Item(1).Text = isinValue
+    
+    ' Save the modified template XML
+    xmlDocTemplate.Save "C:\path\to\your\filled_template.xml" ' Update with your output file path
+    
+    MsgBox "WKN and ISIN have been inserted into the template successfully!", vbInformation
+End Sub
+
+
+    
