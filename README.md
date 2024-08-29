@@ -186,3 +186,152 @@ For i = 0 To callEventItemCount - 1
         Exit Sub
     End If
 Next i
+
+
+
+
+..
+
+
+
+
+
+
+
+
+
+
+
+
+
+Sub AdjustAndFillTemplateWithDatesAndValues()
+    Dim xmlDocSource As MSXML2.DOMDocument60
+    Dim xmlDocTemplate As MSXML2.DOMDocument60
+    Dim callEvent_item_nodes As IXMLDOMNodeList
+    Dim templateKuendigungNodes As IXMLDOMNodeList
+    Dim i As Integer
+    Dim callEventItemCount As Integer
+    Dim templateKuendigungCount As Integer
+    Dim unitSizeNode As IXMLDOMNode
+    Dim unitSizeValue As String
+    
+    ' Load the XML documents
+    Set xmlDocSource = New MSXML2.DOMDocument60
+    Set xmlDocTemplate = New MSXML2.DOMDocument60
+    
+    If Not xmlDocSource.Load("C:\path\to\your\source.xml") Then ' Update with your source XML file path
+        MsgBox "Failed to load source XML file.", vbExclamation
+        Exit Sub
+    End If
+    
+    If Not xmlDocTemplate.Load("C:\path\to\your\template.xml") Then ' Update with your template XML file path
+        MsgBox "Failed to load template XML file.", vbExclamation
+        Exit Sub
+    End If
+    
+    ' Get the list of item nodes from the source XML
+    Set callEvent_item_nodes = xmlDocSource.SelectNodes("//callevents/schedule/item")
+    
+    If callEvent_item_nodes Is Nothing Or callEvent_item_nodes.Length = 0 Then
+        MsgBox "No 'item' nodes found in source XML.", vbExclamation
+        Exit Sub
+    End If
+    
+    callEventItemCount = callEvent_item_nodes.Length
+    
+    ' Get the constant unitSize value from the source XML
+    Set unitSizeNode = xmlDocSource.SelectSingleNode("//unitSize")
+    
+    If unitSizeNode Is Nothing Then
+        MsgBox "'unitSize' node not found in source XML.", vbExclamation
+        Exit Sub
+    End If
+    
+    unitSizeValue = unitSizeNode.Text
+    
+    ' Get the list of kuendigung nodes from the template XML
+    Set templateKuendigungNodes = xmlDocTemplate.SelectNodes("//zahlungen/kuendigung")
+    
+    If templateKuendigungNodes Is Nothing Then
+        MsgBox "No 'kuendigung' nodes found in template XML.", vbExclamation
+        Exit Sub
+    End If
+    
+    templateKuendigungCount = templateKuendigungNodes.Length
+    
+    ' Adjust the loop to use the smaller of the two counts
+    Dim loopCount As Integer
+    loopCount = Application.Min(callEventItemCount, templateKuendigungCount)
+    
+    ' Fill each kuendigung node with the corresponding data from the source
+    For i = 0 To loopCount - 1
+        ' Get the current kuendigung node in the template XML
+        Dim currentKuendigungNode As IXMLDOMElement
+        Set currentKuendigungNode = templateKuendigungNodes.Item(i)
+        
+        ' Ensure the current kuendigung node exists
+        If Not currentKuendigungNode Is Nothing Then
+            ' Get the relevant nodes from the source XML
+            Dim barrierDateNode As IXMLDOMNode
+            Dim settlementDateNode As IXMLDOMNode
+            Dim barrierLevelValueNode As IXMLDOMNode
+            
+            Set barrierDateNode = callEvent_item_nodes.Item(i).SelectSingleNode("barrierEventObservationDates/item")
+            Set settlementDateNode = callEvent_item_nodes.Item(i).SelectSingleNode("settlementDate")
+            Set barrierLevelValueNode = callEvent_item_nodes.Item(i).SelectSingleNode("barrierLevelRelative/value")
+            
+            ' Ensure nodes exist before proceeding
+            If Not barrierDateNode Is Nothing Then
+                Dim beobachtungstagNode As IXMLDOMNode
+                Set beobachtungstagNode = currentKuendigungNode.SelectSingleNode("beobachtungstag")
+                If Not beobachtungstagNode Is Nothing Then
+                    beobachtungstagNode.Text = barrierDateNode.Text
+                Else
+                    MsgBox "'beobachtungstag' node not found in kuendigung node " & (i + 1) & ".", vbExclamation
+                End If
+            End If
+            
+            If Not settlementDateNode Is Nothing Then
+                Dim rueckzahlungsvalutaNode As IXMLDOMNode
+                Set rueckzahlungsvalutaNode = currentKuendigungNode.SelectSingleNode("rückzahlungsvaluta")
+                If Not rueckzahlungsvalutaNode Is Nothing Then
+                    rueckzahlungsvalutaNode.Text = settlementDateNode.Text
+                Else
+                    MsgBox "'rückzahlungsvaluta' node not found in kuendigung node " & (i + 1) & ".", vbExclamation
+                End If
+            End If
+            
+            If Not unitSizeNode Is Nothing Then
+                Dim kuendigungskursNode As IXMLDOMNode
+                Set kuendigungskursNode = currentKuendigungNode.SelectSingleNode("Kuendigungskurs")
+                If Not kuendigungskursNode Is Nothing Then
+                    kuendigungskursNode.Text = unitSizeValue
+                Else
+                    MsgBox "'Kuendigungskurs' node not found in kuendigung node " & (i + 1) & ".", vbExclamation
+                End If
+            End If
+            
+            If Not barrierLevelValueNode Is Nothing Then
+                Dim tilgungslevelprozentNode As IXMLDOMNode
+                Set tilgungslevelprozentNode = currentKuendigungNode.SelectSingleNode("Tilgungslevelprozent")
+                If Not tilgungslevelprozentNode Is Nothing Then
+                    ' Format the barrier level value
+                    Dim barrierLevelFormatted As String
+                    barrierLevelFormatted = Format(CDbl(barrierLevelValueNode.Text) * 100, "0.00")
+                    tilgungslevelprozentNode.Text = barrierLevelFormatted
+                Else
+                    MsgBox "'Tilgungslevelprozent' node not found in kuendigung node " & (i + 1) & ".", vbExclamation
+                End If
+            End If
+        Else
+            MsgBox "No kuendigung node found at index " & (i + 1) & " in the template.", vbExclamation
+            Exit Sub
+        End If
+    Next i
+    
+    ' Save the modified template XML
+    xmlDocTemplate.Save "C:\path\to\your\filled_template.xml" ' Update with your output file path
+    
+    MsgBox "Template has been adjusted and filled successfully!", vbInformation
+End Sub
+
