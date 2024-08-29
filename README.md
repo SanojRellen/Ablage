@@ -1,11 +1,11 @@
 Sub AdjustAndFillTemplateWithDatesAndValues()
     Dim xmlDocSource As MSXML2.DOMDocument60
     Dim xmlDocTemplate As MSXML2.DOMDocument60
-    Dim sourceItemNodes As IXMLDOMNodeList
+    Dim callEvent_item_nodes As IXMLDOMNodeList
     Dim templateKuendigungNodes As IXMLDOMNodeList
     Dim zinsfestlegungstageNode As IXMLDOMElement
     Dim i As Integer
-    Dim sourceItemCount As Integer
+    Dim callEventItemCount As Integer
     Dim unitSizeNode As IXMLDOMNode
     Dim unitSizeValue As String
     
@@ -24,14 +24,14 @@ Sub AdjustAndFillTemplateWithDatesAndValues()
     End If
     
     ' Get the list of item nodes from the source XML
-    Set sourceItemNodes = xmlDocSource.SelectNodes("//callevents/schedule/item")
+    Set callEvent_item_nodes = xmlDocSource.SelectNodes("//callevents/schedule/item")
     
-    If sourceItemNodes Is Nothing Or sourceItemNodes.Length = 0 Then
+    If callEvent_item_nodes Is Nothing Or callEvent_item_nodes.Length = 0 Then
         MsgBox "No 'item' nodes found in source XML.", vbExclamation
         Exit Sub
     End If
     
-    sourceItemCount = sourceItemNodes.Length
+    callEventItemCount = callEvent_item_nodes.Length
     
     ' Get the constant unitSize value from the source XML
     Set unitSizeNode = xmlDocSource.SelectSingleNode("//unitSize")
@@ -52,9 +52,9 @@ Sub AdjustAndFillTemplateWithDatesAndValues()
     End If
     
     ' Adjust the template to match the number of source items
-    If sourceItemCount < 5 Then
+    If callEventItemCount < 5 Then
         ' Remove extra kuendigung nodes in the template
-        For i = templateKuendigungNodes.Length To sourceItemCount + 1 Step -1
+        For i = templateKuendigungNodes.Length To callEventItemCount + 1 Step -1
             templateKuendigungNodes.Item(i - 1).ParentNode.removeChild templateKuendigungNodes.Item(i - 1)
         Next i
     End If
@@ -63,15 +63,15 @@ Sub AdjustAndFillTemplateWithDatesAndValues()
     Set templateKuendigungNodes = xmlDocTemplate.SelectNodes("//zahlungen/kuendigung")
     
     ' Fill each kuendigung node with the corresponding data from the source
-    For i = 0 To sourceItemCount - 1
+    For i = 0 To callEventItemCount - 1
         ' Get the relevant nodes from the source XML
         Dim barrierDateNode As IXMLDOMNode
         Dim settlementDateNode As IXMLDOMNode
         Dim barrierLevelValueNode As IXMLDOMNode
         
-        Set barrierDateNode = sourceItemNodes.Item(i).SelectSingleNode("barrierEventObservationDates/item")
-        Set settlementDateNode = sourceItemNodes.Item(i).SelectSingleNode("settlementDate")
-        Set barrierLevelValueNode = sourceItemNodes.Item(i).SelectSingleNode("barrierLevelRelative/value")
+        Set barrierDateNode = callEvent_item_nodes.Item(i).SelectSingleNode("barrierEventObservationDates/item")
+        Set settlementDateNode = callEvent_item_nodes.Item(i).SelectSingleNode("settlementDate")
+        Set barrierLevelValueNode = callEvent_item_nodes.Item(i).SelectSingleNode("barrierLevelRelative/value")
         
         ' Ensure nodes exist before proceeding
         If barrierDateNode Is Nothing Or settlementDateNode Is Nothing Or barrierLevelValueNode Is Nothing Then
