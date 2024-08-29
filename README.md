@@ -96,3 +96,93 @@ Sub AdjustAndFillTemplateWithDatesAndValues()
     
     MsgBox "Template has been adjusted and filled successfully!", vbInformation
 End Sub
+
+
+
+
+
+
+
+
+
+
+
+
+.
+' Fill each kuendigung node with the corresponding data from the source
+For i = 0 To callEventItemCount - 1
+    ' Get the current kuendigung node in the template XML
+    Dim currentKuendigungNode As IXMLDOMElement
+    Set currentKuendigungNode = templateKuendigungNodes.Item(i)
+    
+    ' Ensure the current kuendigung node exists
+    If Not currentKuendigungNode Is Nothing Then
+        ' Get the relevant nodes from the source XML
+        Dim barrierDateNode As IXMLDOMNode
+        Dim settlementDateNode As IXMLDOMNode
+        Dim barrierLevelValueNode As IXMLDOMNode
+        
+        Set barrierDateNode = callEvent_item_nodes.Item(i).SelectSingleNode("barrierEventObservationDates/item")
+        Set settlementDateNode = callEvent_item_nodes.Item(i).SelectSingleNode("settlementDate")
+        Set barrierLevelValueNode = callEvent_item_nodes.Item(i).SelectSingleNode("barrierLevelRelative/value")
+        
+        ' Ensure nodes exist before proceeding
+        If Not barrierDateNode Is Nothing Then
+            Dim beobachtungstagNode As IXMLDOMNode
+            Set beobachtungstagNode = currentKuendigungNode.SelectSingleNode("beobachtungstag")
+            If Not beobachtungstagNode Is Nothing Then
+                beobachtungstagNode.Text = barrierDateNode.Text
+            Else
+                MsgBox "'beobachtungstag' node not found in kuendigung node " & (i + 1) & ".", vbExclamation
+            End If
+        Else
+            MsgBox "'barrierEventObservationDates/item' node not found in source item node " & (i + 1) & ".", vbExclamation
+            Exit Sub
+        End If
+        
+        If Not settlementDateNode Is Nothing Then
+            Dim rueckzahlungsvalutaNode As IXMLDOMNode
+            Set rueckzahlungsvalutaNode = currentKuendigungNode.SelectSingleNode("rückzahlungsvaluta")
+            If Not rueckzahlungsvalutaNode Is Nothing Then
+                rueckzahlungsvalutaNode.Text = settlementDateNode.Text
+            Else
+                MsgBox "'rückzahlungsvaluta' node not found in kuendigung node " & (i + 1) & ".", vbExclamation
+            End If
+        Else
+            MsgBox "'settlementDate' node not found in source item node " & (i + 1) & ".", vbExclamation
+            Exit Sub
+        End If
+        
+        If Not unitSizeNode Is Nothing Then
+            Dim kuendigungskursNode As IXMLDOMNode
+            Set kuendigungskursNode = currentKuendigungNode.SelectSingleNode("Kuendigungskurs")
+            If Not kuendigungskursNode Is Nothing Then
+                kuendigungskursNode.Text = unitSizeValue
+            Else
+                MsgBox "'Kuendigungskurs' node not found in kuendigung node " & (i + 1) & ".", vbExclamation
+            End If
+        Else
+            MsgBox "'unitSize' node not found in source XML.", vbExclamation
+            Exit Sub
+        End If
+        
+        If Not barrierLevelValueNode Is Nothing Then
+            Dim tilgungslevelprozentNode As IXMLDOMNode
+            Set tilgungslevelprozentNode = currentKuendigungNode.SelectSingleNode("Tilgungslevelprozent")
+            If Not tilgungslevelprozentNode Is Nothing Then
+                ' Format the barrier level value
+                Dim barrierLevelFormatted As String
+                barrierLevelFormatted = Format(CDbl(barrierLevelValueNode.Text) * 100, "0.00")
+                tilgungslevelprozentNode.Text = barrierLevelFormatted
+            Else
+                MsgBox "'Tilgungslevelprozent' node not found in kuendigung node " & (i + 1) & ".", vbExclamation
+            End If
+        Else
+            MsgBox "'barrierLevelRelative/value' node not found in source item node " & (i + 1) & ".", vbExclamation
+            Exit Sub
+        End If
+    Else
+        MsgBox "No kuendigung node found at index " & (i + 1) & " in the template.", vbExclamation
+        Exit Sub
+    End If
+Next i
