@@ -1,4 +1,3 @@
-  
 Sub SendEmailWithTable()
 
     Dim OutlookApp As Object
@@ -13,13 +12,13 @@ Sub SendEmailWithTable()
     Set Ws = ThisWorkbook.Sheets("Sheet1") ' Change Sheet1 to your sheet name
     Set Rng = Ws.Range("R6:T14")
     
-    ' Convert the table range to HTML format
-    TableContent = RangeToHTML(Rng)
+    ' Convert the table range to HTML format directly
+    TableContent = ConvertRangeToHTML(Rng)
     
     ' Construct the body of the email
     EmailBody = "Hey, here are the finding levels:" & "<br><br>"
     EmailBody = EmailBody & TableContent & "<br><br>"
-    ' You can remove the abstract section by commenting or deleting this line
+    ' Remove the abstract row if unnecessary
     ' EmailBody = EmailBody & "Abstract: [Your abstract here]" & "<br><br>"
     EmailBody = EmailBody & "Please amend as necessary." & "<br><br>"
     EmailBody = EmailBody & "Best regards,<br>Dennis"
@@ -38,7 +37,7 @@ Sub SendEmailWithTable()
     ' Setup the email details
     With OutlookMail
         .To = "recipient@example.com" ' Add recipient email address
-        .Subject = "Findings Levels and Abstract"
+        .Subject = "Findings Levels"
         .HTMLBody = EmailBody
         .Display ' To display the email before sending (for review)
         ' .Send ' Uncomment this to send the email directly without reviewing
@@ -50,35 +49,35 @@ Sub SendEmailWithTable()
 
 End Sub
 
-' Function to convert range to HTML for pasting into the email
-Function RangeToHTML(Rng As Range) As String
-    Dim TempWorkbook As Workbook
-    Dim TempWorksheet As Worksheet
-    Dim FileName As String
-    Dim HtmlString As String
+' Function to convert a range to an HTML table string
+Function ConvertRangeToHTML(Rng As Range) As String
     Dim Cell As Range
-
-    ' Copy the range to a new temporary workbook
-    Set TempWorkbook = Workbooks.Add(1)
-    Set TempWorksheet = TempWorkbook.Sheets(1)
-    Rng.Copy
-    TempWorksheet.Cells(1, 1).PasteSpecial Paste:=xlPasteValues
-    TempWorksheet.Cells(1, 1).PasteSpecial Paste:=xlPasteFormats
-
-    ' Save the temporary workbook as an HTML file
-    FileName = Environ$("temp") & "\TempFile.htm"
-    TempWorksheet.Parent.SaveAs FileName, xlHtml
+    Dim TableHTML As String
+    Dim Row As Range
+    Dim TempVal As String
     
-    ' Open the saved HTML file and get the text
-    With CreateObject("Scripting.FileSystemObject")
-        HtmlString = .GetFile(FileName).OpenAsTextStream(1, -2).ReadAll
-    End With
+    ' Start the HTML table
+    TableHTML = "<table border=""1"" cellpadding=""5"" cellspacing=""0"">"
     
-    ' Delete the temporary file and workbook
-    Kill FileName
-    TempWorkbook.Close False
-    Set TempWorkbook = Nothing
+    ' Loop through each row in the range
+    For Each Row In Rng.Rows
+        TableHTML = TableHTML & "<tr>"
+        ' Loop through each cell in the row
+        For Each Cell In Row.Cells
+            TempVal = Cell.Value
+            ' Check if the value is numeric, format accordingly
+            If IsNumeric(TempVal) Then
+                TempVal = Format(TempVal, "0.00") ' Format numeric values
+            End If
+            ' Append cell data to the HTML string
+            TableHTML = TableHTML & "<td>" & TempVal & "</td>"
+        Next Cell
+        TableHTML = TableHTML & "</tr>"
+    Next Row
     
-    ' Return the HTML content
-    RangeToHTML = HtmlString
+    ' Close the HTML table
+    TableHTML = TableHTML & "</table>"
+    
+    ' Return the HTML string
+    ConvertRangeToHTML = TableHTML
 End Function
