@@ -1,3 +1,4 @@
+  
 Sub SendEmailWithTable()
 
     Dim OutlookApp As Object
@@ -18,7 +19,8 @@ Sub SendEmailWithTable()
     ' Construct the body of the email
     EmailBody = "Hey, here are the finding levels:" & "<br><br>"
     EmailBody = EmailBody & TableContent & "<br><br>"
-    EmailBody = EmailBody & "Abstract: [Your abstract here]" & "<br><br>"
+    ' You can remove the abstract section by commenting or deleting this line
+    ' EmailBody = EmailBody & "Abstract: [Your abstract here]" & "<br><br>"
     EmailBody = EmailBody & "Please amend as necessary." & "<br><br>"
     EmailBody = EmailBody & "Best regards,<br>Dennis"
     
@@ -45,31 +47,38 @@ Sub SendEmailWithTable()
     ' Clean up
     Set OutlookMail = Nothing
     Set OutlookApp = Nothing
-    
+
 End Sub
 
 ' Function to convert range to HTML for pasting into the email
 Function RangeToHTML(Rng As Range) As String
     Dim TempWorkbook As Workbook
     Dim TempWorksheet As Worksheet
+    Dim FileName As String
     Dim HtmlString As String
-    
-    ' Copy the range to a new workbook
+    Dim Cell As Range
+
+    ' Copy the range to a new temporary workbook
     Set TempWorkbook = Workbooks.Add(1)
     Set TempWorksheet = TempWorkbook.Sheets(1)
     Rng.Copy
     TempWorksheet.Cells(1, 1).PasteSpecial Paste:=xlPasteValues
     TempWorksheet.Cells(1, 1).PasteSpecial Paste:=xlPasteFormats
+
+    ' Save the temporary workbook as an HTML file
+    FileName = Environ$("temp") & "\TempFile.htm"
+    TempWorksheet.Parent.SaveAs FileName, xlHtml
     
-    ' Save the copied range as HTML
-    With TempWorkbook.PublishObjects.Add(xlSourceRange, "", TempWorksheet.Name, TempWorksheet.UsedRange.Address, xlHtmlStatic)
-        .Publish (True)
-        HtmlString = TempWorkbook.Sheets(1).UsedRange.Address
+    ' Open the saved HTML file and get the text
+    With CreateObject("Scripting.FileSystemObject")
+        HtmlString = .GetFile(FileName).OpenAsTextStream(1, -2).ReadAll
     End With
     
-    ' Clean up
+    ' Delete the temporary file and workbook
+    Kill FileName
     TempWorkbook.Close False
     Set TempWorkbook = Nothing
     
+    ' Return the HTML content
     RangeToHTML = HtmlString
 End Function
