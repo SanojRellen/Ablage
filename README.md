@@ -1,4 +1,5 @@
-Sub SendEmailWithTable()
+
+Sub SendEmailWithFormattedTable()
 
     Dim OutlookApp As Object
     Dim OutlookMail As Object
@@ -12,8 +13,8 @@ Sub SendEmailWithTable()
     Set Ws = ThisWorkbook.Sheets("Sheet1") ' Change Sheet1 to your sheet name
     Set Rng = Ws.Range("R6:T14")
     
-    ' Convert the table range to HTML format directly
-    TableContent = ConvertRangeToHTML(Rng)
+    ' Convert the table range to HTML format directly with formatting
+    TableContent = ConvertRangeToFormattedHTML(Rng)
     
     ' Construct the body of the email
     EmailBody = "Hey, here are the finding levels:" & "<br><br>"
@@ -49,12 +50,16 @@ Sub SendEmailWithTable()
 
 End Sub
 
-' Function to convert a range to an HTML table string
-Function ConvertRangeToHTML(Rng As Range) As String
+' Function to convert a range to an HTML table string with formatting
+Function ConvertRangeToFormattedHTML(Rng As Range) As String
     Dim Cell As Range
     Dim TableHTML As String
     Dim Row As Range
     Dim TempVal As String
+    Dim CellColor As String
+    Dim FontColor As String
+    Dim BoldTag As String
+    Dim ItalicTag As String
     
     ' Start the HTML table
     TableHTML = "<table border=""1"" cellpadding=""5"" cellspacing=""0"">"
@@ -65,12 +70,34 @@ Function ConvertRangeToHTML(Rng As Range) As String
         ' Loop through each cell in the row
         For Each Cell In Row.Cells
             TempVal = Cell.Value
-            ' Check if the value is numeric, format accordingly
-            If IsNumeric(TempVal) Then
-                TempVal = Format(TempVal, "0.00") ' Format numeric values
+            
+            ' Get font color in RGB and convert to HEX
+            FontColor = RGBToHex(Cell.Font.Color)
+            
+            ' Get fill (background) color in RGB and convert to HEX
+            CellColor = RGBToHex(Cell.Interior.Color)
+            
+            ' Handle bold and italic font styles
+            If Cell.Font.Bold Then
+                BoldTag = "<b>"
+            Else
+                BoldTag = ""
             End If
-            ' Append cell data to the HTML string
-            TableHTML = TableHTML & "<td>" & TempVal & "</td>"
+            
+            If Cell.Font.Italic Then
+                ItalicTag = "<i>"
+            Else
+                ItalicTag = ""
+            End If
+            
+            ' Format numeric values
+            If IsNumeric(TempVal) Then
+                TempVal = Format(TempVal, "0.00")
+            End If
+            
+            ' Add cell with font and fill color
+            TableHTML = TableHTML & "<td style=""background-color:" & CellColor & "; color:" & FontColor & """>"
+            TableHTML = TableHTML & BoldTag & ItalicTag & TempVal & "</b></i></td>"
         Next Cell
         TableHTML = TableHTML & "</tr>"
     Next Row
@@ -79,5 +106,18 @@ Function ConvertRangeToHTML(Rng As Range) As String
     TableHTML = TableHTML & "</table>"
     
     ' Return the HTML string
-    ConvertRangeToHTML = TableHTML
+    ConvertRangeToFormattedHTML = TableHTML
+End Function
+
+' Function to convert RGB to HEX for HTML color codes
+Function RGBToHex(RGBColor As Long) As String
+    Dim Red As Long
+    Dim Green As Long
+    Dim Blue As Long
+    
+    Red = RGBColor Mod 256
+    Green = (RGBColor \ 256) Mod 256
+    Blue = (RGBColor \ 65536) Mod 256
+    
+    RGBToHex = "#" & Right("0" & Hex(Blue), 2) & Right("0" & Hex(Green), 2) & Right("0" & Hex(Red), 2)
 End Function
