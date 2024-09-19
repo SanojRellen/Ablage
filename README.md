@@ -1,47 +1,45 @@
-Sub GetClientEmails()
-    Dim OutlookApp As Object
-    Dim OutlookNamespace As Object
-    Dim OutlookFolder As Object
-    Dim OutlookMailItem As Object
-    Dim EmailItem As Object
-    Dim EmailBody As String
-    Dim i As Integer
-    Dim EmailAddress As String
-    Dim LastRow As Long
-    
-    ' Get the email address from the active Excel cell
-    EmailAddress = ActiveCell.Value
-    
-    ' Initialize Outlook application
-    On Error Resume Next
-    Set OutlookApp = GetObject(, "Outlook.Application")
-    If OutlookApp Is Nothing Then
-        Set OutlookApp = CreateObject("Outlook.Application")
-    End If
-    On Error GoTo 0
-    
-    ' Access the default inbox
-    Set OutlookNamespace = OutlookApp.GetNamespace("MAPI")
-    Set OutlookFolder = OutlookNamespace.GetDefaultFolder(6) ' 6 refers to the Inbox
-    
-    ' Loop through emails in the inbox
-    i = 1
-    For Each EmailItem In OutlookFolder.Items
-        If TypeName(EmailItem) = "MailItem" Then
-            If InStr(EmailItem.SenderEmailAddress, EmailAddress) > 0 Then
-                ' Found an email from the specified client
-                LastRow = ThisWorkbook.Sheets("Client-Fund Relationships").Cells(Rows.Count, 1).End(xlUp).Row + 1
-                
-                ' Log the communication in Excel
-                With ThisWorkbook.Sheets("Client-Fund Relationships")
-                    .Cells(LastRow, 1).Value = ActiveCell.Offset(0, -1).Value ' Client ID
-                    .Cells(LastRow, 2).Value = "Related Fund ID" ' You can customize this
-                    .Cells(LastRow, 3).Value = EmailItem.ReceivedTime
-                    .Cells(LastRow, 4).Value = EmailItem.Subject
-                    .Cells(LastRow, 5).Value = "Email Content: " & Left(EmailItem.Body, 100) ' Short summary
-                End With
-            End If
-        End If
-    Next EmailItem
-End Sub
 
+
+Sub SaveRangeAsNewExcelAndAttachToMail()
+
+    Dim ws As Worksheet
+    Dim newWorkbook As Workbook
+    Dim newSheet As Worksheet
+    Dim mypath As String
+    Dim filename As String
+    Dim dateStr As String
+    Dim rngToCopy As Range
+    Dim currentWorkbook As Workbook
+    
+    ' Define your worksheet
+    Set currentWorkbook = ThisWorkbook
+    Set ws = currentWorkbook.Sheets("Sheet1") ' Change "Sheet1" to your sheet name
+
+    ' Define the path and file name
+    mypath = "C:\Your\Path\Here\" ' Change this to your desired path
+    dateStr = Format(Date, "dd_mm_yyyy")
+    filename = mypath & dateStr & "_Funding_Levels.xlsx"
+    
+    ' Define the range to copy
+    Set rngToCopy = ws.Range("R7:T18") ' Adjust range as needed
+
+    ' Create a new workbook and copy the range
+    Set newWorkbook = Workbooks.Add
+    Set newSheet = newWorkbook.Sheets(1)
+    
+    ' Paste the range into the new workbook
+    rngToCopy.Copy
+    newSheet.Range("A1").PasteSpecial Paste:=xlPasteAll ' Paste with formatting
+    
+    ' Save the new workbook
+    Application.DisplayAlerts = False ' Suppress overwrite prompt
+    newWorkbook.SaveAs filename
+    Application.DisplayAlerts = True
+    
+    ' Close the new workbook
+    newWorkbook.Close
+    
+    ' Call the function to send an email with the attachment
+    Call SendEmailWithAttachment(filename)
+    
+End Sub
