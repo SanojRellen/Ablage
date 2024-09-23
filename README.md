@@ -45,3 +45,19 @@ Sub DeleteEmptyRowsInWordTable()
     Set table = Nothing
 
 End Sub
+
+
+
+
+Dim example As String
+Dim example2 As String
+
+' Example string containing the date
+example = "27 March 2024"
+
+' Remove the last 5 characters (the year and the space before it)
+example2 = Left(example, Len(example) - 5)
+
+' Output the result
+MsgBox example2 ' This will display "27 March"
+
