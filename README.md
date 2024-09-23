@@ -61,3 +61,35 @@ example2 = Left(example, Len(example) - 5)
 ' Output the result
 MsgBox example2 ' This will display "27 March"
 
+
+
+
+
+
+
+Dim wordApp As Object
+Dim wordDoc As Object
+Dim bookmarkName As String
+Dim formattedNumber As String
+
+' Set Word application and document
+Set wordApp = CreateObject("Word.Application")
+Set wordDoc = wordApp.Documents.Open("C:\Your\Word\Document.docx") ' Replace with your document path
+
+' Get the formatted number from Excel
+formattedNumber = Format(Range("D37").Value, "#,##0") ' This will format it as 10,000
+
+' Replace the bookmark with the formatted number in Word
+bookmarkName = "YourBookmarkName" ' Replace with your actual bookmark name
+If wordDoc.Bookmarks.Exists(bookmarkName) Then
+    wordDoc.Bookmarks(bookmarkName).Range.Text = formattedNumber
+End If
+
+' Save and close the Word document
+wordDoc.Save
+wordDoc.Close
+wordApp.Quit
+
+Set wordApp = Nothing
+Set wordDoc = Nothing
+
