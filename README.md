@@ -1,3 +1,7 @@
+=IF(WEEKDAY(EDATE(L9,12),2)>5,WORKDAY(EDATE(L9,12)-1,1),EDATE(L9,12))
+
+
+
 
 Dim inputDate As Date
 
