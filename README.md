@@ -1,23 +1,34 @@
-=IF(WEEKDAY(EDATE(L9,12),2)>5,WORKDAY(EDATE(L9,12)-1,1),EDATE(L9,12))
 
+Sub CopyFormatting()
 
-=IF(WEEKDAY(EDATE(L9,12),2)>5,WORKDAY(EDATE(L9,12)-1,1,B1:B10),WORKDAY(EDATE(L9,12),0,B1:B10))
+    Dim sourceRange As Range
+    Dim targetRange As Range
+    Dim cellSource As Range
+    Dim cellTarget As Range
+    Dim rowOffset As Long
+    Dim colOffset As Long
 
+    ' Define the source range (A1:C4)
+    Set sourceRange = Range("A1:C4")
+    
+    ' Define the target range (A5:C8)
+    Set targetRange = Range("A5:C8")
+    
+    ' Loop through each cell in the source range
+    For Each cellSource In sourceRange
+        ' Calculate the row and column offset from the source cell
+        rowOffset = cellSource.Row - sourceRange.Row
+        colOffset = cellSource.Column - sourceRange.Column
+        
+        ' Map the corresponding cell in the target range
+        Set cellTarget = targetRange.Cells(1 + rowOffset, 1 + colOffset)
+        
+        ' Apply the formatting from the source cell to the target cell
+        cellTarget.Font = cellSource.Font
+        cellTarget.Interior.Color = cellSource.Interior.Color
+        cellTarget.Borders.LineStyle = cellSource.Borders.LineStyle
+        cellTarget.NumberFormat = cellSource.NumberFormat
+    Next cellSource
 
-
-
-
-Dim inputDate As Date
-
-' Set your input date (for example, the date could be in a cell like Range("A1").Value)
-inputDate = Range("A1").Value
-
-' Check if the date is a Saturday or Sunday
-If Weekday(inputDate, vbMonday) > 5 Then
-    ' If Saturday (6) or Sunday (7), add the appropriate number of days to get to Monday
-    inputDate = inputDate + (8 - Weekday(inputDate, vbMonday))
-End If
-
-' Store the adjusted date back in a cell, e.g., in A2
-Range("A2").Value = inputDate
+End Sub
 
