@@ -17,3 +17,16 @@ Sub SeparateAndCopyValues()
         End If
     Next i
 End Sub
+
+
+
+
+
+
+
+Dim cell As Range
+For Each cell In Range("C20:H20")
+    If Not IsEmpty(cell.Value) Then
+        ' Your operation here
+    End If
+Next cell
