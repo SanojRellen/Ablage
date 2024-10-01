@@ -6,6 +6,8 @@ Sub CalculatePayoffSchedule()
     Dim payoffMonths(1 To 4) As Integer
     Dim monthNames(1 To 4) As String
     Dim i As Integer
+    Dim j As Integer
+    Dim temp As Integer
     
     ' Get the start date from cell C17 as text
     startDate = Range("C17").Value
@@ -37,7 +39,18 @@ Sub CalculatePayoffSchedule()
         payoffMonths(i + 1) = (CInt(month) + (i * 3) - 1) Mod 12 + 1
     Next i
     
-    ' Paste the payoff months in cells F17 to I17
+    ' Sort the payoff months in ascending order
+    For i = 1 To 3
+        For j = i + 1 To 4
+            If payoffMonths(i) > payoffMonths(j) Then
+                temp = payoffMonths(i)
+                payoffMonths(i) = payoffMonths(j)
+                payoffMonths(j) = temp
+            End If
+        Next j
+    Next i
+    
+    ' Paste the sorted payoff months in cells F17 to I17
     For i = 1 To 4
         Range("F17").Offset(0, i - 1).Value = payoffMonths(i)
     Next i
