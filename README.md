@@ -1,63 +1,32 @@
-Sub CalculatePayoffSchedule()
+Sub CalculateFirstPaymentDate()
     Dim startDate As String
     Dim day As String
     Dim month As String
-    Dim formattedDay As String
-    Dim payoffMonths(1 To 4) As Integer
-    Dim monthNames(1 To 4) As String
-    Dim i As Integer
-    Dim j As Integer
-    Dim temp As Integer
-    
-    ' Get the start date from cell C17 as text
+    Dim year As String
+    Dim firstPaymentDate As Date
+    Dim paymentMonth As Integer
+    Dim paymentYear As Integer
+
+    ' Get the start date from cell C17 as text (assuming format is DD/MM/YYYY)
     startDate = Range("C17").Value
     
-    ' Extract day and month from the start date (assuming format is DD/MM/YYYY)
+    ' Extract day, month, and year from the start date
     day = Left(startDate, 2)
     month = Mid(startDate, 4, 2)
+    year = Right(startDate, 4)
     
-    ' Convert day to a formatted day with suffix (e.g., 27 -> 27th)
-    Select Case CInt(day)
-        Case 1, 21, 31
-            formattedDay = day & "st"
-        Case 2, 22
-            formattedDay = day & "nd"
-        Case 3, 23
-            formattedDay = day & "rd"
-        Case Else
-            formattedDay = day & "th"
-    End Select
+    ' Calculate the first payment month (add 3 months)
+    paymentMonth = (CInt(month) + 3 - 1) Mod 12 + 1
+    paymentYear = CInt(year)
     
-    ' Paste the formatted day in cell D17
-    Range("D17").Value = formattedDay
+    ' Adjust the year if the resulting month is less than the original month (i.e., crossed a year boundary)
+    If paymentMonth <= CInt(month) Then
+        paymentYear = paymentYear + 1
+    End If
     
-    ' Paste the month in cell E17
-    Range("E17").Value = CInt(month)
+    ' Create the first payment date
+    firstPaymentDate = DateSerial(paymentYear, paymentMonth, CInt(day))
     
-    ' Determine the payoff months (every 3 months from the start month)
-    For i = 0 To 3
-        payoffMonths(i + 1) = (CInt(month) + (i * 3) - 1) Mod 12 + 1
-    Next i
-    
-    ' Sort the payoff months in ascending order
-    For i = 1 To 3
-        For j = i + 1 To 4
-            If payoffMonths(i) > payoffMonths(j) Then
-                temp = payoffMonths(i)
-                payoffMonths(i) = payoffMonths(j)
-                payoffMonths(j) = temp
-            End If
-        Next j
-    Next i
-    
-    ' Paste the sorted payoff months in cells F17 to I17
-    For i = 1 To 4
-        Range("F17").Offset(0, i - 1).Value = payoffMonths(i)
-    Next i
-    
-    ' Convert the payoff months to full month names and paste in cells F18 to I18
-    For i = 1 To 4
-        monthNames(i) = MonthName(payoffMonths(i))
-        Range("F18").Offset(0, i - 1).Value = monthNames(i)
-    Next i
+    ' Paste the first payment date in cell D11
+    Range("D11").Value = firstPaymentDate
 End Sub
