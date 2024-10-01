@@ -1,21 +1,21 @@
 Sub CalculatePayoffSchedule()
-    Dim startDate As Date
-    Dim day As Integer
-    Dim month As Integer
+    Dim startDate As String
+    Dim day As String
+    Dim month As String
     Dim formattedDay As String
     Dim payoffMonths(1 To 4) As Integer
     Dim monthNames(1 To 4) As String
     Dim i As Integer
     
-    ' Get the start date from cell C17
+    ' Get the start date from cell C17 as text
     startDate = Range("C17").Value
     
-    ' Extract day and month from the start date
-    day = Day(startDate)
-    month = Month(startDate)
+    ' Extract day and month from the start date (assuming format is DD/MM/YYYY)
+    day = Left(startDate, 2)
+    month = Mid(startDate, 4, 2)
     
-    ' Format the day with suffix (e.g., 9 -> 9th)
-    Select Case day
+    ' Convert day to a formatted day with suffix (e.g., 27 -> 27th)
+    Select Case CInt(day)
         Case 1, 21, 31
             formattedDay = day & "st"
         Case 2, 22
@@ -30,11 +30,11 @@ Sub CalculatePayoffSchedule()
     Range("D17").Value = formattedDay
     
     ' Paste the month in cell E17
-    Range("E17").Value = month
+    Range("E17").Value = CInt(month)
     
     ' Determine the payoff months (every 3 months from the start month)
     For i = 0 To 3
-        payoffMonths(i + 1) = (month + (i * 3) - 1) Mod 12 + 1
+        payoffMonths(i + 1) = (CInt(month) + (i * 3) - 1) Mod 12 + 1
     Next i
     
     ' Paste the payoff months in cells F17 to I17
@@ -48,5 +48,3 @@ Sub CalculatePayoffSchedule()
         Range("F18").Offset(0, i - 1).Value = monthNames(i)
     Next i
 End Sub
-
-
