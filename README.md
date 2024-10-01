@@ -1,80 +1,52 @@
-Sub SeparateAndCopyValues()
-    Dim inputString As String
-    Dim values() As String
+Sub CalculatePayoffSchedule()
+    Dim startDate As Date
+    Dim day As Integer
+    Dim month As Integer
+    Dim formattedDay As String
+    Dim payoffMonths(1 To 4) As Integer
+    Dim monthNames(1 To 4) As String
     Dim i As Integer
     
-    ' Get the input from cell C15
-    inputString = Range("C15").Value
+    ' Get the start date from cell C17
+    startDate = Range("C17").Value
     
-    ' Split the string by slashes
-    values = Split(inputString, "/")
+    ' Extract day and month from the start date
+    day = Day(startDate)
+    month = Month(startDate)
     
-    ' Loop through the array and copy values to cells F15 to K15
-    For i = LBound(values) To UBound(values)
-        ' Check if the index is within the range of F15 to K15 (0 to 5)
-        If i < 6 Then
-            Range("F" & 15).Offset(0, i).Value = Trim(values(i))
-        End If
+    ' Format the day with suffix (e.g., 9 -> 9th)
+    Select Case day
+        Case 1, 21, 31
+            formattedDay = day & "st"
+        Case 2, 22
+            formattedDay = day & "nd"
+        Case 3, 23
+            formattedDay = day & "rd"
+        Case Else
+            formattedDay = day & "th"
+    End Select
+    
+    ' Paste the formatted day in cell D17
+    Range("D17").Value = formattedDay
+    
+    ' Paste the month in cell E17
+    Range("E17").Value = month
+    
+    ' Determine the payoff months (every 3 months from the start month)
+    For i = 0 To 3
+        payoffMonths(i + 1) = (month + (i * 3) - 1) Mod 12 + 1
+    Next i
+    
+    ' Paste the payoff months in cells F17 to I17
+    For i = 1 To 4
+        Range("F17").Offset(0, i - 1).Value = payoffMonths(i)
+    Next i
+    
+    ' Convert the payoff months to full month names and paste in cells F18 to I18
+    For i = 1 To 4
+        monthNames(i) = MonthName(payoffMonths(i))
+        Range("F18").Offset(0, i - 1).Value = monthNames(i)
     Next i
 End Sub
 
-
-
-
-
-
-
-Dim cell As Range
-For Each cell In Range("C20:H20")
-    If Not IsEmpty(cell.Value) Then
-        ' Your operation here
-    End If
-Next cell
-
-
-
-
-
-
-
-
-Sub FillWordBookmark()
-    Dim wdApp As Object
-    Dim wdDoc As Object
-    Dim bookmarkName As String
-    Dim cellValue As String
-    Dim fixedText As String
-    
-    ' Initialize variables
-    bookmarkName = "YourBookmarkName" ' Replace with the name of your bookmark
-    fixedText = "Peter"
-    cellValue = ThisWorkbook.Sheets("Sheet1").Range("A3").Value
-    
-    ' Start Word and open the document
-    On Error Resume Next
-    Set wdApp = GetObject(Class:="Word.Application")
-    If wdApp Is Nothing Then
-        Set wdApp = CreateObject(Class:="Word.Application")
-    End If
-    On Error GoTo 0
-    
-    wdApp.Visible = True
-    Set wdDoc = wdApp.Documents.Open("C:\Path\To\Your\Document.docx") ' Update the path to your document
-    
-    ' Check if bookmark exists and fill it
-    If wdDoc.Bookmarks.Exists(bookmarkName) Then
-        wdDoc.Bookmarks(bookmarkName).Range.Text = cellValue & " " & fixedText
-    Else
-        MsgBox "Bookmark not found!", vbExclamation
-    End If
-
-    ' Optional: Save and close the document
-    ' wdDoc.Save
-    ' wdDoc.Close
-    ' wdApp.Quit
-
-    ' Clean up
-    Set wdDoc = Nothing
-    Set wdApp = Nothing
-End Sub
 
