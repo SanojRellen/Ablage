@@ -6,3 +6,9 @@
 
 
 =AND(A1>=TODAY(), A1<=TODAY()+60)
+
+
+=DATEVALUE(TEXT(BDP("AAPL US Equity", "EARN_ANN_DT"),"mm/dd/yyyy"))
+
+
+=DATEVALUE(BDP("AAPL US Equity", "EARN_ANN_DT"))
