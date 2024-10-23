@@ -3,3 +3,6 @@
 
 =INDEX(N8:N10, MATCH(1, (L8:L10=D8)*(O8:O10=G8), 0))
 
+
+
+=AND(A1>=TODAY(), A1<=TODAY()+60)
