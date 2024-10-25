@@ -1,20 +1,32 @@
-Sub SendEmail()
-    Dim OutlookApp As Object
-    Dim OutlookMail As Object
+Sub FilterAndCopy()
+    Dim ws As Worksheet
+    Dim lastRow As Long
+    Dim copyRange As Range
+    Dim pasteRange As Range
 
-    ' Create Outlook application
-    Set OutlookApp = CreateObject("Outlook.Application")
-    ' Create a new email item
-    Set OutlookMail = OutlookApp.CreateItem(0)
+    ' Set the worksheet to work on
+    Set ws = ThisWorkbook.Sheets("Sheet1") ' Replace with your actual sheet name
 
-    With OutlookMail
-        .To = "recipient@example.com"  ' Replace with the recipient's email address
-        .Subject = "Your Subject Here"
-        .Body = "This is the body of the email. Customize this text as needed."
-        .Send  ' Sends the email immediately
-    End With
+    ' Find the last row in column AE
+    lastRow = ws.Cells(ws.Rows.Count, "AE").End(xlUp).Row
 
-    ' Clean up
-    Set OutlookMail = Nothing
-    Set OutlookApp = Nothing
+    ' Apply the filter on column AE for value 1
+    ws.Range("A1:AE" & lastRow).AutoFilter Field:=31, Criteria1:="1"  ' Field 31 = Column AE
+
+    ' Define the range to copy (only visible cells in column A)
+    Set copyRange = ws.Range("A2:A" & lastRow).SpecialCells(xlCellTypeVisible)
+
+    ' Define the starting cell to paste (AG19) and resize the range to match the copy range
+    Set pasteRange = ws.Range("AG19").Resize(copyRange.Rows.Count, 1)
+
+    ' Copy values from column A to column AG starting from AG19
+    copyRange.Copy
+    pasteRange.PasteSpecial xlPasteValues
+
+    ' Remove the filter
+    ws.AutoFilterMode = False
+
+    ' Clear the clipboard
+    Application.CutCopyMode = False
 End Sub
+
