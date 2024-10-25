@@ -1,8 +1,20 @@
-=WORKDAY(EOMONTH(A1, 5), 1 + (2 - WEEKDAY(EOMONTH(A1, 5) + 1, 2)) % 7)
+Sub SendEmail()
+    Dim OutlookApp As Object
+    Dim OutlookMail As Object
 
-=Y32 + CHOOSE(WEEKDAY(Y32, 2), 0, 6, 5, 4, 3, 2, 1)
+    ' Create Outlook application
+    Set OutlookApp = CreateObject("Outlook.Application")
+    ' Create a new email item
+    Set OutlookMail = OutlookApp.CreateItem(0)
 
+    With OutlookMail
+        .To = "recipient@example.com"  ' Replace with the recipient's email address
+        .Subject = "Your Subject Here"
+        .Body = "This is the body of the email. Customize this text as needed."
+        .Send  ' Sends the email immediately
+    End With
 
-
-=INDEX(Sheet1!X:X, MATCH(A1, Sheet1!B:B, 0) + 4)
-
+    ' Clean up
+    Set OutlookMail = Nothing
+    Set OutlookApp = Nothing
+End Sub
