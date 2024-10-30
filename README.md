@@ -1,15 +1,8 @@
-
-Sub ExtractNumber()
-    Dim originalText As String
-    Dim extractedNumber As Double
-
-    ' Example text
-    originalText = "2.35% p.a."
-    
-    ' Extract the numeric part and convert it to a double
-    extractedNumber = Val(Replace(originalText, "% p.a.", ""))
-    
-    ' Output the result (e.g., assign to a cell)
-    Range("D24").Value = extractedNumber
-End Sub
-
+Dim i As Integer
+For i = 0 To 5 ' Loop from 0 to 5 (for a maximum of 6 items)
+    If i <= UBound(dstelist) Then ' Check if there is a value at this index
+        ws.Range("C14").Offset(0, i).Value = dstelist(i)
+    Else
+        ws.Range("C14").Offset(0, i).ClearContents ' Clear cell if no corresponding list value
+    End If
+Next i
