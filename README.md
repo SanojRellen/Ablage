@@ -26,3 +26,11 @@ Sub CopyAndPasteWithDelete()
     ' Delete row 2 in the "Copy Table from NGT" sheet
     wsCopy.Rows(2).Delete
 End Sub
+
+
+
+
+
+Sub VlookupExample()
+    Sheets("Sheet1").Range("O7").Formula = "=VLOOKUP(K7, 'SDS Reference Table'!D2:E100, 2, FALSE)"
+End Sub
