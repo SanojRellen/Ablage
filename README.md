@@ -1,8 +1,3 @@
-
-=IF(WEEKDAY(TODAY())<=5, TODAY() - (ROW()-1) - INT((ROW()-1)/5)*2, TODAY() - ROW() - INT(ROW()/5)*2)
-
-
-
 Sub CopyAndPasteWithDelete()
     Dim wsCopy As Worksheet
     Dim wsOutput As Worksheet
@@ -10,6 +5,11 @@ Sub CopyAndPasteWithDelete()
     ' Define worksheets
     Set wsCopy = ThisWorkbook.Sheets("Copy Table from NGT")
     Set wsOutput = ThisWorkbook.Sheets("Output Sheet")
+    
+    ' Clear all cells in row 7 of Output Sheet except columns O and K
+    wsOutput.Rows(7).ClearContents
+    wsOutput.Range("O7").Value = wsOutput.Range("O7").Value
+    wsOutput.Range("K7").Value = wsOutput.Range("K7").Value
     
     ' Paste specific values from "Copy Table from NGT" to "Output Sheet" row 7
     wsOutput.Range("C7").Value = "FBB"
