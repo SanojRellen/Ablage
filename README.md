@@ -123,3 +123,8 @@ Sub OrganizeDataByCriteria()
     MsgBox "Data organized successfully!"
 End Sub
 
+
+
+=INDEX(ALL!D3:D10000, MATCH(LARGE(ALL!E3:E10000, 1), ALL!E3:E10000, 0))
+
+
