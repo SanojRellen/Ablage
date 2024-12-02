@@ -1,58 +1,60 @@
-Sub CopyDataFromFiles()
-    Dim wbTarget As Workbook
-    Dim wbSource As Workbook
-    Dim folderPath As String
-    Dim fileName As String
-    Dim wsSource As Worksheet
-    Dim wsTarget As Worksheet
+Sub OrganizeDataByCriteria()
+    Dim wsAll As Worksheet, wsByClients As Worksheet, wsByCurrencyPair As Worksheet, wsByTradeType As Worksheet
+    Dim lastRow As Long, targetRow As Long
+    Dim currencyPairs As Object, tradeTypes As Object
+    Dim i As Long, currentValue As String
 
-    ' Set the folder path containing the source files
-    folderPath = "C:\Path\To\Your\Folder\" ' Change to your folder path
+    ' Set worksheets
+    Set wsAll = ThisWorkbook.Sheets("ALL")
+    Set wsByClients = ThisWorkbook.Sheets("By Clients")
+    Set wsByCurrencyPair = ThisWorkbook.Sheets("By Currency Pair")
+    Set wsByTradeType = ThisWorkbook.Sheets("By Trade Type")
 
-    ' Open the target workbook
-    Set wbTarget = Workbooks.Open(folderPath & "v2_iBoxx Covered Indices Historycopy.xlsm")
+    ' Initialize dictionaries to track unique values
+    Set currencyPairs = CreateObject("Scripting.Dictionary")
+    Set tradeTypes = CreateObject("Scripting.Dictionary")
 
-    ' Array of source files and corresponding target sheets
-    Dim sourceFiles(1 To 2) As String
-    Dim targetSheets(1 To 2) As String
+    ' Find the last row in ALL sheet
+    lastRow = wsAll.Cells(wsAll.Rows.Count, "A").End(xlUp).Row
 
-    sourceFiles(1) = "Spreads_Basic_Engine.xlsm"
-    sourceFiles(2) = "YTM and Duration basic engine.xlsm"
-    
-    targetSheets(1) = "Raw_Data"
-    targetSheets(2) = "Raw_Yield"
-
-    ' Loop through source files and copy data
-    Dim i As Integer
-    For i = 1 To 2
-        ' Open source workbook
-        Set wbSource = Workbooks.Open(folderPath & sourceFiles(i))
-        Set wsSource = wbSource.Sheets("Adhoc")
-
-        ' Set target worksheet
-        Set wsTarget = wbTarget.Sheets(targetSheets(i))
-
-        ' Copy data
-        wsSource.Range("EU12:KL6000").Copy
-        wsTarget.Range("A7").PasteSpecial Paste:=xlPasteValues
-
-        ' Close source workbook
-        wbSource.Close False
+    ' Copy rows ending with "Total" to "By Clients"
+    targetRow = 2
+    For i = 1 To lastRow
+        If Right(wsAll.Cells(i, 1).Value, 5) = "Total" Then
+            wsAll.Rows(i).Copy wsByClients.Cells(targetRow, 2)
+            targetRow = targetRow + 1
+        End If
     Next i
 
-    ' Handle Duration data
-    Set wbSource = Workbooks.Open(folderPath & "YTM and Duration basic engine.xlsm")
-    Set wsSource = wbSource.Sheets("Adhoc")
-    Set wsTarget = wbTarget.Sheets("Raw_Duration")
+    ' Sort the data in "By Clients"
+    With wsByClients
+        .Range("B2", .Cells(targetRow - 1, 256)).Sort Key1:=.Range("B2"), Order1:=xlAscending, Header:=xlNo
+        ' Remove blank rows between last filled row and row 100
+        .Range("B" & targetRow & ":ER100").ClearContents
+    End With
 
-    wsSource.Range("EU12:KL6000").Copy
-    wsTarget.Range("A7").PasteSpecial Paste:=xlPasteValues
-    wbSource.Close False
+    ' Extract unique currency pairs in column D to "By Currency Pair"
+    targetRow = 2
+    For i = 1 To lastRow
+        currentValue = wsAll.Cells(i, 4).Value
+        If Not currencyPairs.Exists(currentValue) And currentValue <> "" Then
+            currencyPairs.Add currentValue, True
+            wsByCurrencyPair.Cells(targetRow, 1).Value = currentValue
+            targetRow = targetRow + 1
+        End If
+    Next i
 
-    ' Save and close the target workbook
-    wbTarget.Save
-    wbTarget.Close
+    ' Extract unique trade types in column B ending with "Total" to "By Trade Type"
+    targetRow = 2
+    For i = 1 To lastRow
+        currentValue = wsAll.Cells(i, 2).Value
+        If Right(currentValue, 5) = "Total" And Not tradeTypes.Exists(currentValue) Then
+            tradeTypes.Add currentValue, True
+            wsByTradeType.Cells(targetRow, 1).Value = currentValue
+            targetRow = targetRow + 1
+        End If
+    Next i
 
-    MsgBox "Data copied successfully!"
-
+    MsgBox "Data organized successfully!"
 End Sub
+
