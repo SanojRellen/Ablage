@@ -1,39 +1,31 @@
+Sub CopyMatchingValuesToColumnS()
+    Dim ws As Worksheet
+    Dim searchValue As String
+    Dim lastRow As Long
+    Dim i As Long
+    Dim outputRow As Long
 
-Sub ClearData()
-    Dim wsAll As Worksheet, wsByClients As Worksheet, wsByCurrencyPair As Worksheet, wsByTradeType As Worksheet
-    Dim lastRowAll As Long, lastRowByClients As Long, lastRowByCurrency As Long, lastRowByTradeType As Long
-    
-    ' Set worksheets
-    Set wsAll = ThisWorkbook.Sheets("ALL")
-    Set wsByClients = ThisWorkbook.Sheets("By Clients")
-    Set wsByCurrencyPair = ThisWorkbook.Sheets("By Currency Pair")
-    Set wsByTradeType = ThisWorkbook.Sheets("By Trade Type")
-    
-    ' Clear range A2:N in "ALL"
-    lastRowAll = wsAll.Cells(wsAll.Rows.Count, "N").End(xlUp).Row
-    If lastRowAll >= 2 Then
-        wsAll.Range("A2:N" & lastRowAll).ClearContents
-    End If
+    ' Set the worksheet to the active sheet
+    Set ws = ThisWorkbook.ActiveSheet
 
-    ' Clear column B starting from row 16 in "By Clients"
-    lastRowByClients = wsByClients.Cells(wsByClients.Rows.Count, "B").End(xlUp).Row
-    If lastRowByClients >= 16 Then
-        wsByClients.Range("B16:B" & lastRowByClients).ClearContents
-    End If
+    ' Get the value to search from cell S1
+    searchValue = ws.Range("S1").Value
 
-    ' Clear column B starting from row 15 in "By Currency Pair"
-    lastRowByCurrency = wsByCurrencyPair.Cells(wsByCurrencyPair.Rows.Count, "B").End(xlUp).Row
-    If lastRowByCurrency >= 15 Then
-        wsByCurrencyPair.Range("B15:B" & lastRowByCurrency).ClearContents
-    End If
+    ' Clear column S from row 7 to 22
+    ws.Range("S7:S22").ClearContents
 
-    ' Clear column B starting from row 3 in "By Trade Type"
-    lastRowByTradeType = wsByTradeType.Cells(wsByTradeType.Rows.Count, "B").End(xlUp).Row
-    If lastRowByTradeType >= 3 Then
-        wsByTradeType.Range("B3:B" & lastRowByTradeType).ClearContents
-    End If
+    ' Initialize the output row counter
+    outputRow = 7
 
-    MsgBox "Data cleared successfully!"
+    ' Get the last used row in column D
+    lastRow = ws.Cells(ws.Rows.Count, "D").End(xlUp).Row
+
+    ' Loop through column D starting from row 7
+    For i = 7 To lastRow
+        If ws.Cells(i, "D").Value = searchValue Then
+            ' Copy value from column A to column S
+            ws.Cells(outputRow, "S").Value = ws.Cells(i, "A").Value
+            outputRow = outputRow + 1
+        End If
+    Next i
 End Sub
-
-
