@@ -1,28 +1,38 @@
-Sub ProcessData()
-    Dim ws As Worksheet
-    Dim lastRow As Long
-    Dim i As Long
-    
-    ' Set the worksheet
-    Set ws = ThisWorkbook.Sheets("Template")
-    
-    ' Find the last used row in column A
-    lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
-    
-    ' Step 1: Split column A by ":"
-    For i = 1 To lastRow
-        If InStr(ws.Cells(i, "A").Value, ":") > 0 Then
-            ws.Cells(i, "B").Value = Split(ws.Cells(i, "A").Value, ":")(1)
-            ws.Cells(i, "A").Value = Split(ws.Cells(i, "A").Value, ":")(0)
-        End If
-    Next i
-    
-    ' Step 2: Remove spaces (including nonbreaking) before the first letter or number in column B
-    For i = 1 To lastRow
-        ws.Cells(i, "B").Value = Application.Trim(Application.Substitute(ws.Cells(i, "B").Value, Chr(160), " "))
-    Next i
-    
-    ' Step 3: Put the last 6 characters of A16 into B16
-    ws.Cells(16, "B").Value = Right(ws.Cells(16, "A").Value, 6)
-    
-    ' Step 4
+
+Dim ws As Worksheet
+Dim cellValue As String
+
+' Reference the "Template" sheet and cell B4
+Set ws = ThisWorkbook.Sheets("Template")
+cellValue = ws.Range("B4").Value
+
+With wddDoc
+    If Right(cellValue, 5) = "Index" Then
+        ' Delete the table containing the "Stock_Box" bookmark
+        Dim tbl As Table
+        For Each tbl In .Tables
+            If tbl.Range.Includes(.Bookmarks("Stock_Box").Range) Then
+                tbl.Delete
+                Exit For
+            End If
+        Next tbl
+    Else
+        ' Delete the table containing the "Index_Box" bookmark
+        Dim tblIndex As Table
+        For Each tblIndex In .Tables
+            If tblIndex.Range.Includes(.Bookmarks("Index_Box").Range) Then
+                tblIndex.Delete
+                Exit For
+            End If
+        Next tblIndex
+        
+        ' Delete the table containing the "Index_Disclaimer" bookmark
+        Dim tblDisclaimer As Table
+        For Each tblDisclaimer In .Tables
+            If tblDisclaimer.Range.Includes(.Bookmarks("Index_Disclaimer").Range) Then
+                tblDisclaimer.Delete
+                Exit For
+            End If
+        Next tblDisclaimer
+    End If
+End With
