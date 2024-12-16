@@ -1,38 +1,24 @@
 
-Dim ws As Worksheet
-Dim cellValue As String
+Sub SetCalculationModeAndSaveSettings()
+    ' Store original settings to revert back later
+    Dim originalCalculation As XlCalculation
+    Dim originalRecalculateBeforeSave As Boolean
 
-' Reference the "Template" sheet and cell B4
-Set ws = ThisWorkbook.Sheets("Template")
-cellValue = ws.Range("B4").Value
+    ' Save current settings
+    originalCalculation = Application.Calculation
+    originalRecalculateBeforeSave = Application.CalculateBeforeSave
 
-With wddDoc
-    If Right(cellValue, 5) = "Index" Then
-        ' Delete the table containing the "Stock_Box" bookmark
-        Dim tbl As Table
-        For Each tbl In .Tables
-            If tbl.Range.Includes(.Bookmarks("Stock_Box").Range) Then
-                tbl.Delete
-                Exit For
-            End If
-        Next tbl
-    Else
-        ' Delete the table containing the "Index_Box" bookmark
-        Dim tblIndex As Table
-        For Each tblIndex In .Tables
-            If tblIndex.Range.Includes(.Bookmarks("Index_Box").Range) Then
-                tblIndex.Delete
-                Exit For
-            End If
-        Next tblIndex
-        
-        ' Delete the table containing the "Index_Disclaimer" bookmark
-        Dim tblDisclaimer As Table
-        For Each tblDisclaimer In .Tables
-            If tblDisclaimer.Range.Includes(.Bookmarks("Index_Disclaimer").Range) Then
-                tblDisclaimer.Delete
-                Exit For
-            End If
-        Next tblDisclaimer
-    End If
-End With
+    ' Change Excel settings
+    Application.Calculation = xlCalculationManual   ' Set to manual calculation
+    Application.CalculateBeforeSave = False          ' Untick Recalculate workbook before saving
+
+    ' Your macro code goes here
+    ' For example:
+    MsgBox "Performing operations with manual calculation mode."
+
+    ' After your code, revert to the original settings
+    Application.Calculation = originalCalculation
+    Application.CalculateBeforeSave = originalRecalculateBeforeSave
+
+    MsgBox "Settings reverted back to original."
+End Sub
