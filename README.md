@@ -1,17 +1,12 @@
-Sub MyMacro()
-    ' Löscht die Spalten C, D und G
-    Columns("C:C").Delete
-    Columns("D:D").Delete
-    Columns("G:G").Delete
+Sub FormatNumberToGerman()
+    Dim cell As Range
+    Set cell = Range("C16")
     
-    ' Ersetzt Punkt durch Komma in C25
-    Range("C25").Value = Replace(Range("C25").Value, ".", ",")
+    ' Format the number in English format with thousand separators
+    cell.NumberFormat = "#,##0.00"
     
-    ' Ersetzt Komma durch Punkt in C21
-    Range("C21").Value = Replace(Range("C21").Value, ",", ".")
-    
-    ' Löscht die Zeilen 36, 20 und 8
-    Rows(36).Delete
-    Rows(20).Delete
-    Rows(8).Delete
+    ' Convert the number to German format (uses regional settings)
+    cell.Value = Replace(cell.Text, ",", ";") ' Temporarily replace commas
+    cell.Value = Replace(cell.Value, ".", ",") ' Replace dots with commas
+    cell.Value = Replace(cell.Value, ";", ".") ' Replace temporary semicolons with dots
 End Sub
