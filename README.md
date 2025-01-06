@@ -1,3 +1,8 @@
+=INDEX(S:S, MATCH(A1, A:A, 0) + 4)
+
+
+
+
 Sub FormatNumberToGerman()
     Dim cell As Range
     Set cell = Range("C16")
